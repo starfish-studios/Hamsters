@@ -49,7 +49,7 @@ public class CaughtMobItem extends MobBucketItem {
             CompoundTag compoundnbt = stack.getTag();
             if (compoundnbt != null && compoundnbt.contains("Variant", 3)) {
                 Hamster.Variant variant = Hamster.Variant.getTypeById(compoundnbt.getInt("Variant"));
-                tooltip.add((Component.translatable(String.format("tooltip.naturalist.%s", variant.toString().toLowerCase())).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY)));
+                tooltip.add((Component.translatable(String.format("tooltip.hamsters.%s", variant.toString().toLowerCase())).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY)));
             }
         }
     }

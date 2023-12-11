@@ -72,7 +72,7 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
 
     private static final Ingredient FOOD_ITEMS = Ingredient.of(ItemTags.VILLAGER_PLANTABLE_SEEDS);
     private static final EntityDataAccessor<Boolean> DATA_INTERESTED = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<String> DATA_TYPE = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> FROM_HAND = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
 
     public Hamster(EntityType<? extends Hamster> entityType, Level level) {
@@ -102,6 +102,16 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
     }
 
+    @Override
+    public void customServerAiStep() {
+        if (this.getMoveControl().hasWanted()) {
+            this.setSprinting(this.getMoveControl().getSpeedModifier() >= 1.3D);
+        } else {
+            this.setSprinting(false);
+        }
+        super.customServerAiStep();
+    }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 5.0).add(Attributes.MOVEMENT_SPEED, 0.25).add(Attributes.ATTACK_DAMAGE, 1.5);
     }
@@ -120,13 +130,7 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
 
     // endregion
 
-    public boolean fromHand() {
-        return this.entityData.get(FROM_HAND);
-    }
-
-    public void setFromHand(boolean fromHand) {
-        this.entityData.set(FROM_HAND, fromHand);
-    }
+    // region CATCHING
 
     public void saveToHandTag(ItemStack stack) {
         Catchable.saveDefaultDataToHandTag(this, stack);
@@ -165,6 +169,8 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
     public SoundEvent getPickupSound() {
         return null;
     }
+
+    // endregion
 
     // region SOUNDS
 
@@ -209,7 +215,7 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
         this.entityData.define(SLEEPING, false);
         this.entityData.define(EAT_COUNTER, 0);
         this.entityData.define(DATA_INTERESTED, false);
-        this.entityData.define(DATA_TYPE, Variant.ORANGE.type);
+        this.entityData.define(DATA_VARIANT, 2);
         this.entityData.define(FROM_HAND, false);
     }
 
@@ -223,7 +229,7 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
     @Override
     public void addAdditionalSaveData(CompoundTag compoundTag) {
         super.addAdditionalSaveData(compoundTag);
-        compoundTag.putString("Type", this.getVariant().getSerializedName());
+        compoundTag.putInt("Variant", getVariant().getId());
         compoundTag.putBoolean("FromHand", this.fromHand());
     }
 
@@ -269,15 +275,24 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
     // region BREEDING / VARIANTS / MIXING
 
 
-    public void setVariant(Variant variant) {
-        this.entityData.set(DATA_TYPE, variant.type);
+    public Hamster.Variant getVariant() {
+        return Hamster.Variant.BY_ID[this.entityData.get(DATA_VARIANT)];
     }
 
-    public @NotNull Variant getVariant() {
-        return Variant.byType(this.entityData.get(DATA_TYPE));
+    public void setVariant(Hamster.Variant variant) {
+        this.entityData.set(DATA_VARIANT, variant.getId());
     }
 
-    public enum Variant implements StringRepresentable {
+
+    public boolean fromHand() {
+        return this.entityData.get(FROM_HAND);
+    }
+
+    public void setFromHand(boolean fromHand) {
+        this.entityData.set(FROM_HAND, fromHand);
+    }
+
+    public enum Variant {
         WHITE (0, "white"),
         PEACHES_AND_CREAM (1, "peaches_and_cream"),
         ORANGE (2, "orange"),
@@ -285,19 +300,22 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
         BROWN (4, "brown"),
         BLACK_WHITE (5, "black_white"),
         BLACK (6, "black");
-        public static final StringRepresentable.EnumCodec<Variant> CODEC = StringRepresentable.fromEnum(Variant::values);
-        private int id;
-        final String type;
-
-        Variant(int j, String type) {
-            this.id = j;
-            this.type = type;
-        }
 
         public static final Hamster.Variant[] BY_ID = Arrays.stream(values()).sorted(Comparator.comparingInt(Variant::getId)).toArray(Variant[]::new);
+        private final int id;
+        private final String name;
+
+        private Variant(int j, String string2) {
+            this.id = j;
+            this.name = string2;
+        }
 
         public int getId() {
             return this.id;
+        }
+
+        public String getName() {
+            return this.name;
         }
 
         public static Variant getTypeById(int id) {
@@ -305,14 +323,6 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
                 if (type.id == id) return type;
             }
             return Variant.ORANGE;
-        }
-
-        public @NotNull String getSerializedName() {
-            return this.type;
-        }
-
-        static Variant byType(String name) {
-            return Variant.CODEC.byName(name, ORANGE);
         }
     }
 
@@ -399,15 +409,6 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
 
     // endregion
 
-    @Override
-    public void customServerAiStep() {
-        if (this.getMoveControl().hasWanted()) {
-            this.setSprinting(this.getMoveControl().getSpeedModifier() >= 1.3D);
-        } else {
-            this.setSprinting(false);
-        }
-        super.customServerAiStep();
-    }
 
     // region GECKOLIB
 

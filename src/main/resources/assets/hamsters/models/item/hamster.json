@@ -12,37 +12,37 @@
     },
     {
       "predicate": {
-        "variant": 0.166
+        "variant": 0.142857143
       },
       "model": "hamsters:item/hamsters/peaches_and_cream"
     },
     {
       "predicate": {
-        "variant": 0.333
+        "variant": 0.285714286
       },
       "model": "hamsters:item/hamsters/orange"
     },
     {
       "predicate": {
-        "variant": 0.5
+        "variant": 0.428571429
       },
       "model": "hamsters:item/hamsters/grey_white"
     },
     {
       "predicate": {
-        "variant": 0.666
+        "variant": 0.571428571
       },
       "model": "hamsters:item/hamsters/brown"
     },
     {
       "predicate": {
-        "variant": 0.833
+        "variant": 0.714285714
       },
         "model": "hamsters:item/hamsters/black_white"
     },
     {
       "predicate": {
-        "variant": 1.0
+        "variant": 0.857142857
       },
         "model": "hamsters:item/hamsters/black"
     }

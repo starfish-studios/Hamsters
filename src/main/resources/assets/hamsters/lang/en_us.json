@@ -3,6 +3,15 @@
   "item.hamsters.hamsters": "Hamsters",
 
   "entity.hamsters.hamster": "Hamster",
+  "item.hamsters.hamster": "Hamster",
+
+  "tooltip.hamsters.white": "White",
+  "tooltip.hamsters.peaches_and_cream": "Peaches and Cream",
+  "tooltip.hamsters.orange": "Orange",
+  "tooltip.hamsters.grey_white": "Grey White",
+  "tooltip.hamsters.brown": "Brown",
+  "tooltip.hamsters.black_white": "Black White",
+  "tooltip.hamsters.black": "Black",
 
   "item.hamsters.hamster_spawn_egg": "Hamster Spawn Egg",
   "block.hamsters.tunnel": "Tunnel",

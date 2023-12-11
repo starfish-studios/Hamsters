@@ -1,30 +1,49 @@
 {
   "variants": {
-    "facing=down": {
-      "model": "hamsters:block/tunnel",
-      "x": 180
+    "north=false,east=false,south=false,west=false,up=false,down=false": {
+      "model": "hamsters:block/one_way"
     },
-    "facing=east": {
-      "model": "hamsters:block/tunnel",
+    "north=false,east=false,south=false,west=false,up=false,down=true": {
+      "model": "hamsters:block/one_way"
+    },
+    "north=false,east=false,south=false,west=false,up=true,down=false": {
+      "model": "hamsters:block/one_way"
+    },
+    "north=false,east=false,south=false,west=false,up=true,down=true": {
+      "model": "hamsters:block/one_way"
+    },
+    "north=false,east=true,south=false,west=false,up=false,down=false": {
+      "model": "hamsters:block/one_way",
+      "x": 90,
+      "y": 270
+    },
+    "north=false,east=true,south=false,west=true,up=false,down=false": {
+      "model": "hamsters:block/one_way",
+      "x": 90,
+      "y": 270
+    },
+    "north=false,east=false,south=false,west=true,up=false,down=false": {
+      "model": "hamsters:block/one_way",
       "x": 90,
       "y": 90
     },
-    "facing=north": {
-      "model": "hamsters:block/tunnel",
-      "x": 90
-    },
-    "facing=south": {
-      "model": "hamsters:block/tunnel",
+    "north=false,east=true,south=false,west=false,up=false,down=true": {
+      "model": "hamsters:block/corner",
       "x": 90,
-      "y": 180
+      "y": 90
     },
-    "facing=up": {
-      "model": "hamsters:block/tunnel"
+    "north=false,east=true,south=false,west=false,up=true,down=false": {
+      "model": "hamsters:block/corner",
+      "y": 90
     },
-    "facing=west": {
-      "model": "hamsters:block/tunnel",
-      "x": 90,
-      "y": 270
+    "north=false,east=false,south=false,west=true,up=true,down=false": {
+      "model": "hamsters:block/corner",
+      "y": -90
+    },
+    "north=false,east=false,south=false,west=true,up=false,down=true": {
+      "model": "hamsters:block/corner",
+      "x": -180,
+      "y": 90
     }
   }
 }
