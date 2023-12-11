@@ -1,0 +1,14 @@
+{
+  "itemGroup.hamsters.tab": "Hamsters",
+  "item.hamsters.hamsters": "Hamsters",
+
+  "entity.hamsters.hamster": "Hamster",
+
+  "item.hamsters.hamster_spawn_egg": "Hamster Spawn Egg",
+  "block.hamsters.tunnel": "Tunnel",
+
+  "hamsters.subtitles.hamster.ambient": "Hamster squeaks",
+  "hamsters.subtitles.hamster.hurt": "Hamster hurts",
+  "hamsters.subtitles.hamster.death": "Hamster dies",
+  "hamsters.subtitles.hamster.beg": "Hamster begs"
+}

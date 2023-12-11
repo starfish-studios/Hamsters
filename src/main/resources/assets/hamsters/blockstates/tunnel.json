@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "hamsters:block/tunnel",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "hamsters:block/tunnel",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "hamsters:block/tunnel",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "hamsters:block/tunnel",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "hamsters:block/tunnel"
+    },
+    "facing=west": {
+      "model": "hamsters:block/tunnel",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

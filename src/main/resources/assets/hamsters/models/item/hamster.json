@@ -1,0 +1,50 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "hamsters:item/hamster_orange"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "variant": 0
+      },
+      "model": "hamsters:item/hamsters/white"
+    },
+    {
+      "predicate": {
+        "variant": 0.166
+      },
+      "model": "hamsters:item/hamsters/peaches_and_cream"
+    },
+    {
+      "predicate": {
+        "variant": 0.333
+      },
+      "model": "hamsters:item/hamsters/orange"
+    },
+    {
+      "predicate": {
+        "variant": 0.5
+      },
+      "model": "hamsters:item/hamsters/grey_white"
+    },
+    {
+      "predicate": {
+        "variant": 0.666
+      },
+      "model": "hamsters:item/hamsters/brown"
+    },
+    {
+      "predicate": {
+        "variant": 0.833
+      },
+        "model": "hamsters:item/hamsters/black_white"
+    },
+    {
+      "predicate": {
+        "variant": 1.0
+      },
+        "model": "hamsters:item/hamsters/black"
+    }
+  ]
+}

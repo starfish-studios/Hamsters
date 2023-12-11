@@ -1,0 +1,50 @@
+{
+	"entity.hamster.ambient": {
+		"sounds": [
+		  "hamsters:entity/hamster/idle1",
+		  "hamsters:entity/hamster/idle2",
+		  "hamsters:entity/hamster/idle3",
+		  "hamsters:entity/hamster/idle4",
+		  "hamsters:entity/hamster/idle5"
+		],
+		"subtitle": "hamsters.subtitles.hamster.ambient"
+	},
+	"entity.hamster.hurt": {
+		"sounds": [
+		  "hamsters:entity/hamster/hurt1",
+		  "hamsters:entity/hamster/hurt2",
+		  "hamsters:entity/hamster/hurt3",
+		  "hamsters:entity/hamster/hurt4",
+		  "hamsters:entity/hamster/hurt5"
+		],
+		"subtitle": "hamsters.subtitles.hamster.hurt"
+	},
+	"entity.hamster.death": {
+		"sounds": [
+		  "hamsters:entity/hamster/death1",
+		  "hamsters:entity/hamster/death2",
+		  "hamsters:entity/hamster/death3",
+		  "hamsters:entity/hamster/death4",
+		  "hamsters:entity/hamster/death5"
+		],
+		"subtitle": "hamsters.subtitles.hamster.death"
+	},
+	"entity.hamster.sleep": {
+		"sounds": [
+		  "hamsters:entity/hamster/sleep1",
+		  "hamsters:entity/hamster/sleep2",
+		  "hamsters:entity/hamster/sleep3",
+		  "hamsters:entity/hamster/sleep4"
+		],
+		"subtitle": "hamsters.subtitles.hamster.sleep"
+	},
+	"entity.hamster.beg": {
+		"sounds": [
+		  "hamsters:entity/hamster/standing1",
+		  "hamsters:entity/hamster/standing2",
+		  "hamsters:entity/hamster/standing3",
+		  "hamsters:entity/hamster/standing4"
+		],
+		"subtitle": "hamsters.subtitles.hamster.beg"
+	}
+}

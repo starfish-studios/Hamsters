@@ -1,0 +1,180 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.sf_nba.hamster.standing": {
+			"loop": true,
+			"animation_length": 2,
+			"bones": {
+				"body": {
+					"rotation": [-57.5, 0, 0],
+					"position": [0, -0.5, 0]
+				},
+				"leftHand": {
+					"rotation": [65, -15, "Math.sin((query.anim_time - 0.5) * 180) * 4"],
+					"position": [0, 0, 1]
+				},
+				"rightHand": {
+					"rotation": [65, 15, "Math.sin((query.anim_time - 0.3) * 180) * -4"],
+					"position": [0, 0, 1]
+				},
+				"headRot": {
+					"rotation": [52.5, 0, 0]
+				}
+			},
+			"sound_effects": {
+				"0.0": {
+					"effect": "standing"
+				}
+			}
+		},
+		"animation.sf_nba.hamster.idle": {
+			"loop": true,
+			"animation_length": 2,
+			"bones": {
+				"tail": {
+					"rotation": {
+						"0.5": {
+							"vector": [0, 0, 0]
+						},
+						"0.625": {
+							"vector": [0, 10, 0]
+						},
+						"0.75": {
+							"vector": [0, -20, 0]
+						},
+						"0.875": {
+							"vector": [0, 10, 0]
+						},
+						"1.0417": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"leftEar": {
+					"rotation": {
+						"vector": ["(Math.cos((query.anim_time - 0.0) * 180) * -3)", 0, 0]
+					}
+				},
+				"rightEar": {
+					"rotation": {
+						"vector": ["(Math.cos((query.anim_time - 0.2) * 180) * -3)", 0, 0]
+					}
+				}
+			}
+		},
+		"animation.sf_nba.hamster.walk": {
+			"loop": true,
+			"bones": {
+				"tail": {
+					"rotation": ["Math.sin((query.anim_time - 0.3) * 1440) * -5", 0, 0]
+				},
+				"body": {
+					"rotation": [0, 0, "Math.sin((query.anim_time - 0.1) * 720) * -2"],
+					"position": [0, "Math.sin((query.anim_time - 0.0) * 1440) * -0.2", 0]
+				},
+				"leftHand": {
+					"rotation": ["Math.cos((query.anim_time - 0.2) * 720) * 20", 0, 0]
+				},
+				"rightHand": {
+					"rotation": ["Math.cos((query.anim_time - 0.2) * 720) * -20", 0, 0]
+				},
+				"leftFoot": {
+					"rotation": ["Math.sin((query.anim_time - 0.4) * 720) * 20", 0, 0]
+				},
+				"rightFoot": {
+					"rotation": ["Math.sin((query.anim_time - 0.4) * 720) * -20", 0, 0]
+				},
+				"rightEar": {
+					"rotation": ["Math.sin((query.anim_time - 0.3) * 1440) * -4", 0, 0]
+				},
+				"leftEar": {
+					"rotation": ["Math.sin((query.anim_time - 0.3) * 1440) * -4", 0, 0]
+				},
+				"headRot": {
+					"rotation": [0, 0, "Math.sin((query.anim_time - 0.3) * 720) * -2"]
+				}
+			}
+		},
+		"animation.sf_nba.hamster.run": {
+			"loop": true,
+			"animation_length": 1,
+			"bones": {
+				"tail": {
+					"rotation": ["Math.sin((query.anim_time - 0.3) * 2880) * -10", 0, 0]
+				},
+				"body": {
+					"rotation": [2.5, 0, "Math.sin((query.anim_time - 0.1) * 1440) * -2"],
+					"position": [0, "Math.sin((query.anim_time - 0.0) * 2880) * -0.2", 0]
+				},
+				"leftHand": {
+					"rotation": ["Math.cos((query.anim_time - 0.2) * 1440) * 30", 0, 0]
+				},
+				"rightHand": {
+					"rotation": ["Math.cos((query.anim_time - 0.2) * 1440) * -30", 0, 0]
+				},
+				"leftFoot": {
+					"rotation": ["Math.sin((query.anim_time - 0.4) * 1440) * 30", 0, 0]
+				},
+				"rightFoot": {
+					"rotation": ["Math.sin((query.anim_time - 0.4) * 1440) * -30", 0, 0]
+				},
+				"rightEar": {
+					"rotation": ["Math.sin((query.anim_time - 0.3) * 2880) * -6", 0, 0]
+				},
+				"leftEar": {
+					"rotation": ["Math.sin((query.anim_time - 0.3) * 2880) * -6", 0, 0]
+				},
+				"headRot": {
+					"rotation": [-7.5, 0, "Math.sin((query.anim_time - 0.3) * 1440) * 2"]
+				}
+			}
+		},
+		"animation.sf_nba.hamster.sleep": {
+			"loop": true,
+			"animation_length": 2.75,
+			"bones": {
+				"tail": {
+					"rotation": [-35, 0, 0]
+				},
+				"body": {
+					"position": [0, 0, 0]
+				},
+				"leftHand": {
+					"rotation": [0, 0, 17.5],
+					"position": [-1, 0, 0]
+				},
+				"leftFoot": {
+					"rotation": [0, 0, 20],
+					"position": [-1, 0, 0]
+				},
+				"root": {
+					"rotation": [0, 0, -55],
+					"position": [1, 1, 0]
+				},
+				"rightEar": {
+					"rotation": [32.5, 0, 0]
+				},
+				"leftEar": {
+					"rotation": {
+						"0.0": [37.5, 0, 0],
+						"0.4583": [37.5, 0, 0],
+						"0.5417": [47.5, 0, 0],
+						"0.625": [0, 0, 0],
+						"0.7083": [47.5, 0, 0],
+						"0.8333": [37.5, 0, 0]
+					}
+				},
+				"headRot": {
+					"rotation": [36.16965, -23.08105, 25.76136],
+					"position": [0, 1, -0.75]
+				}
+			},
+			"sound_effects": {
+				"0.0": {
+					"effect": "sleep"
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}
