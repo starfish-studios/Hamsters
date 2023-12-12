@@ -25,7 +25,19 @@
     "north=false,east=false,south=false,west=true,up=false,down=false": {
       "model": "hamsters:block/one_way",
       "x": 90,
-      "y": 90
+      "y": 270
+    },
+    "north=false,east=false,south=true,west=false,up=false,down=false": {
+      "model": "hamsters:block/one_way",
+      "x": 90
+    },
+    "north=true,east=false,south=true,west=false,up=false,down=false": {
+      "model": "hamsters:block/one_way",
+      "x": 90
+    },
+    "north=true,east=false,south=false,west=false,up=false,down=false": {
+      "model": "hamsters:block/one_way",
+      "x": 90
     },
     "north=false,east=true,south=false,west=false,up=false,down=true": {
       "model": "hamsters:block/corner",
@@ -36,6 +48,9 @@
       "model": "hamsters:block/corner",
       "y": 90
     },
+    "north=true,east=false,south=false,west=false,up=true,down=false": {
+      "model": "hamsters:block/corner"
+    },
     "north=false,east=false,south=false,west=true,up=true,down=false": {
       "model": "hamsters:block/corner",
       "y": -90
@@ -44,6 +59,41 @@
       "model": "hamsters:block/corner",
       "x": -180,
       "y": 90
+    },
+
+
+    "north=false,east=false,south=true,west=false,up=true,down=true": {
+      "model": "hamsters:block/t_shape",
+      "y": 180
+    },
+    "north=true,east=false,south=false,west=false,up=true,down=true": {
+      "model": "hamsters:block/t_shape"
+    },
+    "north=false,east=true,south=false,west=false,up=true,down=true": {
+      "model": "hamsters:block/t_shape",
+      "y": 90
+    },
+    "north=false,east=false,south=false,west=true,up=true,down=true": {
+      "model": "hamsters:block/t_shape",
+      "y": -90
+    },
+
+
+    "north=true,east=false,south=true,west=false,up=true,down=false": {
+      "model": "hamsters:block/t_shape",
+      "x": -90,
+      "y": 180
+    },
+    "north=true,east=false,south=true,west=false,up=false,down=true": {
+      "model": "hamsters:block/t_shape",
+      "x": 90
+    },
+    "north=false,east=true,south=false,west=true,up=false,down=true": {
+      "model": "hamsters:block/t_shape",
+      "x": 90,
+      "y": -90
     }
+
+
   }
 }
