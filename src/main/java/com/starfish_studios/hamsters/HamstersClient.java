@@ -25,7 +25,7 @@ public class HamstersClient implements ClientModInitializer {
 
 		GeckoLib.initialize();
 
-		ItemProperties.register(HamstersItems.HAMSTER.get(), new ResourceLocation("variant"), (stack, world, entity, num) -> {
+		ItemProperties.register(HamstersItems.HAMSTER, new ResourceLocation("variant"), (stack, world, entity, num) -> {
 			CompoundTag compoundTag = stack.getTag();
 			if (compoundTag != null && compoundTag.contains("Variant")) {
 				return (float)compoundTag.getInt("Variant") / 7;

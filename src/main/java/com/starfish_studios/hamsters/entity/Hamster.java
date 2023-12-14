@@ -5,18 +5,24 @@
 
 package com.starfish_studios.hamsters.entity;
 
-import com.starfish_studios.hamsters.entity.common.Catchable;
 import com.starfish_studios.hamsters.entity.common.SearchForItemsGoal;
 import com.starfish_studios.hamsters.registry.HamstersBlocks;
 import com.starfish_studios.hamsters.registry.HamstersEntityType;
 import com.starfish_studios.hamsters.registry.HamstersItems;
 import com.starfish_studios.hamsters.registry.HamstersSoundEvents;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -31,9 +37,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -42,6 +46,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -53,13 +58,10 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
-public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
+public class Hamster extends TamableAnimal implements GeoEntity {
     // region
     protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.idle");
     protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.walk");
@@ -130,10 +132,7 @@ public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
         ItemStack itemStack = player.getItemInHand(interactionHand);
         if (this.level().isClientSide) {
             if (this.isTame() && this.isOwnedBy(player)) {
-                if (!player.isShiftKeyDown()) {
                     return InteractionResult.SUCCESS;
-                }
-                return Catchable.catchAnimal(player, interactionHand, this).orElse(super.mobInteract(player, interactionHand));
             } else {
                 return !this.isFood(itemStack) || !(this.getHealth() < this.getMaxHealth()) && this.isTame() ? InteractionResult.PASS : InteractionResult.SUCCESS;
             }
@@ -151,7 +150,9 @@ public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
                     if (!interactionResult.consumesAction() || this.isBaby()) {
                         this.setOrderedToSit(!this.isOrderedToSit());
                     }
-
+                    if (this.isOwnedBy(player) && player.isShiftKeyDown()) {
+                        this.catchHamster(player);
+                    }
                     return interactionResult;
                 }
             } else if (this.isFood(itemStack)) {
@@ -168,7 +169,7 @@ public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
                 return InteractionResult.CONSUME;
             }
         }
-        return Catchable.catchAnimal(player, interactionHand, this).orElse(super.mobInteract(player, interactionHand));
+        return super.mobInteract(player, interactionHand);
     }
 
     protected float getStandingEyeHeight(Pose pose, EntityDimensions entityDimensions) {
@@ -183,23 +184,38 @@ public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
 
     // region CATCHING
 
-    public void saveToHandTag(ItemStack stack) {
-        Catchable.saveDefaultDataToHandTag(this, stack);
-        CompoundTag compoundTag = stack.getOrCreateTag();
-        compoundTag.putInt("Variant", this.getVariant().getId());
-        compoundTag.putInt("Age", this.getAge());
-
+    public InteractionResult catchHamster(Player player) {
+        ItemStack output = this.getCaughtItemStack();
+        saveDefaultDataToItemTag(this, output);
+        this.discard();
+        player.getInventory().add(output);
+        return InteractionResult.sidedSuccess(true);
     }
 
-    public void loadFromHandTag(CompoundTag tag) {
-        Catchable.loadDefaultDataFromHandTag(this, tag);
-        int i = tag.getInt("Variant");
-        if (i >= 0 && i < Variant.BY_ID.length) {
-            this.setVariant(Variant.BY_ID[i]);
+    private static void saveDefaultDataToItemTag(Hamster mob, ItemStack itemStack) {
+        CompoundTag compoundTag = itemStack.getOrCreateTag();
+        if (mob.hasCustomName()) {
+            itemStack.setHoverName(mob.getCustomName());
         }
+        mob.saveID(compoundTag);
+    }
 
-        if (tag.contains("Age")) {
-            this.setAge(tag.getInt("Age"));
+    public CompoundTag saveID(CompoundTag compoundTag) {
+        try {
+            compoundTag.putShort("Air", (short)this.getAirSupply());
+            compoundTag.putBoolean("Invulnerable", this.isInvulnerable());
+            if (this.isCustomNameVisible()) compoundTag.putBoolean("CustomNameVisible", this.isCustomNameVisible());
+            if (this.isSilent()) compoundTag.putBoolean("Silent", this.isSilent());
+            if (this.isNoGravity()) compoundTag.putBoolean("NoGravity", this.isNoGravity());
+            if (this.hasGlowingTag()) compoundTag.putBoolean("Glowing", true);
+            this.addAdditionalSaveData(compoundTag);
+            return compoundTag;
+        }
+        catch (Throwable var9) {
+            CrashReport crashReport = CrashReport.forThrowable(var9, "Saving entity NBT");
+            CrashReportCategory crashReportCategory = crashReport.addCategory("Entity being saved");
+            this.fillCrashReportCategory(crashReportCategory);
+            throw new ReportedException(crashReport);
         }
     }
 
@@ -212,14 +228,8 @@ public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
     }
 
     public ItemStack getCaughtItemStack() {
-        return new ItemStack(HamstersItems.HAMSTER.get());
+        return new ItemStack(HamstersItems.HAMSTER);
     }
-
-    @Override
-    public SoundEvent getPickupSound() {
-        return null;
-    }
-
     // endregion
 
     // region SOUNDS
@@ -445,7 +455,7 @@ public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
         hamster.setVariant(Variant.values()[random.nextInt(Variant.values().length)]);
         return hamster;
     }
-    
+
     // endregion
 
 
@@ -629,6 +639,6 @@ public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
             } else {
                 return !livingEntity.isSleeping() && !livingEntity.isDiscrete();
             }
-        } 
+        }
     }
 }
