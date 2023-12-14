@@ -26,7 +26,7 @@ public class SeatEntity extends Entity {
 
     public SeatEntity(Level level, BlockPos pos) {
         this(level);
-        this.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        this.setPos(pos.getX() + 0.5, pos.getY() + 0.01, pos.getZ() + 0.5);
     }
 
     @Override

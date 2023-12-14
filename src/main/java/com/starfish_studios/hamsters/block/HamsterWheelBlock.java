@@ -74,7 +74,7 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
 
     public static boolean ejectSeatedExceptPlayer(Level level, SeatEntity seatEntity) {
         List<Entity> passengers = seatEntity.getPassengers();
-        if (!passengers.isEmpty() && passengers.get(0) instanceof Player) return false;
+        if (passengers.isEmpty()) return false;
         if (!level.isClientSide) seatEntity.ejectPassengers();
         return true;
     }
@@ -86,6 +86,7 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
 
     public static void sitDown(Level level, BlockPos pos, Entity entity) {
         if (level.isClientSide) return;
+        if (entity == null) return;
 
         SeatEntity seat = new SeatEntity(level, pos);
         level.addFreshEntity(seat);
@@ -135,7 +136,7 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
             }
 
             if (level.isClientSide) return InteractionResult.SUCCESS;
-            sitDown(level, blockPos, getLeashed(player).orElse(player));
+            sitDown(level, blockPos, getLeashed(player).orElse(null));
             return InteractionResult.SUCCESS;
 
 
