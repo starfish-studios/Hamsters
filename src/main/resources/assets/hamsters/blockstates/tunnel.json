@@ -92,6 +92,20 @@
       "model": "hamsters:block/t_shape",
       "x": 90,
       "y": -90
+    },
+
+
+    "north=false,east=true,south=true,west=false,up=false,down=false": {
+      "model": "hamsters:block/corner"
+    },
+    "north=true,east=true,south=false,west=false,up=false,down=false": {
+      "model": "hamsters:block/corner"
+    },
+    "north=false,east=false,south=true,west=true,up=false,down=false": {
+      "model": "hamsters:block/corner"
+    },
+    "north=true,east=false,south=false,west=true,up=false,down=false": {
+      "model": "hamsters:block/corner"
     }
 
 

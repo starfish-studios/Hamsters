@@ -1,4 +1,4 @@
-package com.starfish_studios.hamsters.entity.ai.goals;
+package com.starfish_studios.hamsters.entity.common;
 
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.PathfinderMob;

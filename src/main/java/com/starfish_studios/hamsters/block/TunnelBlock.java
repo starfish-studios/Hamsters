@@ -2,8 +2,6 @@ package com.starfish_studios.hamsters.block;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.mojang.serialization.MapCodec;
-import com.starfish_studios.hamsters.block.properties.TunnelTypes;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,9 +19,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -35,7 +30,7 @@ import java.util.Map;
 public class TunnelBlock extends Block {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-
+    // region SHAPES
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST = BlockStateProperties.EAST;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
@@ -62,6 +57,7 @@ public class TunnelBlock extends Block {
     protected static final VoxelShape SINGLE_X = Shapes.or(SOLID_FRONT, SOLID_BACK, SOLID_TOP, SOLID_BOTTOM);
     protected static final VoxelShape SINGLE_Z = Shapes.or(SOLID_LEFT, SOLID_RIGHT, SOLID_TOP, SOLID_BOTTOM);
 
+    // endregion
 
     public TunnelBlock(Properties properties) {
         super(properties);
@@ -84,13 +80,31 @@ public class TunnelBlock extends Block {
     }
 
     public void entityInside(BlockState blockState, Level level, BlockPos blockPos, net.minecraft.world.entity.Entity entity) {
-        entity.setDeltaMovement(entity.getDeltaMovement().multiply(1.2F, 1.0F, 1.2F));
+        // TODO: Having a hard time getting this to work without launching the entity while they're in a corner.
+        // entity.setDeltaMovement(entity.getDeltaMovement().multiply(1.2F, 1.0F, 1.2F));
     }
 
-    public VoxelShape getInteractionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
+    public VoxelShape getCollisionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
+        VoxelShape shape = Shapes.empty();
+        if (blockState.getValue(SOUTH) || blockState.getValue(NORTH)) {
+            shape = Shapes.or(shape, SOLID_LEFT, SOLID_RIGHT);
+        }
+        if (blockState.getValue(EAST) || blockState.getValue(WEST)) {
+            shape = Shapes.or(shape, SOLID_FRONT, SOLID_BACK);
+        }
+        if (!blockState.getValue(UP) || !blockState.getValue(DOWN)) {
+            shape = Shapes.or(shape, SOLID_TOP, SOLID_BOTTOM);
+        }
+        return shape;
+        // TODO: This should be a modular system that can handle any combination of tunnels, but it's not working properly.
+    }
+
+    // This makes the block's interaction shape still solid, while the above lets the player pass through.
+    public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
         return Shapes.block();
     }
 
+    // This makes sure the player's camera does not collide with the block.
     public VoxelShape getVisualShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
         return Shapes.empty();
     }
@@ -99,7 +113,7 @@ public class TunnelBlock extends Block {
         return this.getStateForPlacement(blockPlaceContext.getLevel(), blockPlaceContext.getClickedPos());
     }
 
-
+    // This determines if it is next to another tunnel block.
     public BlockState getStateForPlacement(BlockGetter blockGetter, BlockPos blockPos) {
         BlockState blockState = blockGetter.getBlockState(blockPos.below());
         BlockState blockState2 = blockGetter.getBlockState(blockPos.above());
@@ -116,10 +130,12 @@ public class TunnelBlock extends Block {
                 .setValue(WEST, blockState6.is(this));
     }
 
+    // TODO: This may be why the collisions aren't working properly, but I haven't played with this part yet.
     public BlockState updateShape(BlockState blockState, Direction direction, BlockState blockState2, LevelAccessor levelAccessor, BlockPos blockPos, BlockPos blockPos2) {
         return blockState.setValue(PROPERTY_BY_DIRECTION.get(direction), blockState2.is(this));
     }
 
+    // This is for their final glassy look and making their model culling work properly.
     public boolean skipRendering(BlockState blockState, BlockState blockState2, Direction direction) {
         return blockState2.is(this) || super.skipRendering(blockState, blockState2, direction);
     }

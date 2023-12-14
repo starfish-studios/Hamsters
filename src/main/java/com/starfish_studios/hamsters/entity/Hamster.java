@@ -5,9 +5,9 @@
 
 package com.starfish_studios.hamsters.entity;
 
-import com.starfish_studios.hamsters.entity.ai.goals.SearchForItemsGoal;
 import com.starfish_studios.hamsters.entity.common.Catchable;
-import com.starfish_studios.hamsters.entity.common.HamstersAnimal;
+import com.starfish_studios.hamsters.entity.common.SearchForItemsGoal;
+import com.starfish_studios.hamsters.registry.HamstersBlocks;
 import com.starfish_studios.hamsters.registry.HamstersEntityType;
 import com.starfish_studios.hamsters.registry.HamstersItems;
 import com.starfish_studios.hamsters.registry.HamstersSoundEvents;
@@ -21,7 +21,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -30,21 +29,17 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.inventory.TransientCraftingContainer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import org.jetbrains.annotations.NotNull;
@@ -58,26 +53,37 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.function.Predicate;
 
-public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
+public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
+    // region
     protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.idle");
     protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.walk");
     protected static final RawAnimation RUN = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.run");
+    protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.sleep");
     protected static final RawAnimation STANDING = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.standing");
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-    private static final EntityDataAccessor<Boolean> SLEEPING = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> EAT_COUNTER = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
 
     private static final Ingredient FOOD_ITEMS = Ingredient.of(ItemTags.VILLAGER_PLANTABLE_SEEDS);
     private static final EntityDataAccessor<Boolean> DATA_INTERESTED = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> FROM_HAND = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
+    private int sleepTime;
+
+    // endregion
 
     public Hamster(EntityType<? extends Hamster> entityType, Level level) {
         super(entityType, level);
-        this.setCanPickUpLoot(true);
+        if (!this.isSleeping()) {
+            this.setCanPickUpLoot(true);
+        }
+        // region PATHFINDING
         this.setPathfindingMalus(BlockPathTypes.LAVA, 8.0F);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 1.0F);
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, 1.0F);
@@ -86,15 +92,18 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
         this.setPathfindingMalus((BlockPathTypes.DANGER_OTHER), 1.0F);
         this.setPathfindingMalus((BlockPathTypes.DAMAGE_OTHER), 1.0F);
         this.setPathfindingMalus((BlockPathTypes.WATER_BORDER), 1.0F);
+        // endregion
     }
 
     // region BASIC ENTITY
 
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new PanicGoal(this, 1.3));
+        this.goalSelector.addGoal(0, new PanicGoal(this, 1.3));
+        this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
-        this.goalSelector.addGoal(3, new SearchForItemsGoal(this, 1.25F, FOOD_ITEMS, 8.0D, 8.0D));
+        this.goalSelector.addGoal(3, new SleepGoal());
+        this.goalSelector.addGoal(4, new SearchForItemsGoal(this, 1.25F, FOOD_ITEMS, 8.0D, 8.0D));
         this.goalSelector.addGoal(4, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
         this.goalSelector.addGoal(5, new FollowParentGoal(this, 1.25));
         this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0));
@@ -117,6 +126,48 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
     }
 
     public InteractionResult mobInteract(Player player, InteractionHand interactionHand) {
+
+        ItemStack itemStack = player.getItemInHand(interactionHand);
+        if (this.level().isClientSide) {
+            if (this.isTame() && this.isOwnedBy(player)) {
+                if (!player.isShiftKeyDown()) {
+                    return InteractionResult.SUCCESS;
+                }
+                return Catchable.catchAnimal(player, interactionHand, this).orElse(super.mobInteract(player, interactionHand));
+            } else {
+                return !this.isFood(itemStack) || !(this.getHealth() < this.getMaxHealth()) && this.isTame() ? InteractionResult.PASS : InteractionResult.SUCCESS;
+            }
+        } else {
+            InteractionResult interactionResult;
+            if (this.isTame()) {
+                if (this.isOwnedBy(player)) {
+                    if (this.getHealth() < this.getMaxHealth()) {
+                        this.usePlayerItem(player, interactionHand, itemStack);
+                        this.heal(2.0F);
+                        return InteractionResult.CONSUME;
+                    }
+
+                    interactionResult = super.mobInteract(player, interactionHand);
+                    if (!interactionResult.consumesAction() || this.isBaby()) {
+                        this.setOrderedToSit(!this.isOrderedToSit());
+                    }
+
+                    return interactionResult;
+                }
+            } else if (this.isFood(itemStack)) {
+                this.usePlayerItem(player, interactionHand, itemStack);
+                if (this.random.nextInt(3) == 0) {
+                    this.tame(player);
+                    this.setOrderedToSit(true);
+                    this.level().broadcastEntityEvent(this, (byte)7);
+                } else {
+                    this.level().broadcastEntityEvent(this, (byte)6);
+                }
+
+                this.setPersistenceRequired();
+                return InteractionResult.CONSUME;
+            }
+        }
         return Catchable.catchAnimal(player, interactionHand, this).orElse(super.mobInteract(player, interactionHand));
     }
 
@@ -150,7 +201,6 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
         if (tag.contains("Age")) {
             this.setAge(tag.getInt("Age"));
         }
-
     }
 
     public boolean requiresCustomPersistence() {
@@ -173,6 +223,8 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
     // endregion
 
     // region SOUNDS
+
+
 
     protected SoundEvent getAmbientSound() {
         return HamstersSoundEvents.HAMSTER_AMBIENT;
@@ -202,6 +254,12 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
 
     // region DATA
 
+    void clearStates() {
+        this.setIsInterested(false);
+        this.setInSittingPose(false);
+        this.setSleeping(false);
+    }
+
     public void setIsInterested(boolean bl) {
         this.entityData.set(DATA_INTERESTED, bl);
     }
@@ -212,7 +270,6 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(SLEEPING, false);
         this.entityData.define(EAT_COUNTER, 0);
         this.entityData.define(DATA_INTERESTED, false);
         this.entityData.define(DATA_VARIANT, 2);
@@ -233,10 +290,54 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
         compoundTag.putBoolean("FromHand", this.fromHand());
     }
 
+    public boolean isSleeping() {
+        return this.getFlag(32);
+    }
+
+    public void setSleeping(boolean bl) {
+        this.setFlag(32, bl);
+    }
+
+    private void setFlag(int i, boolean bl) {
+        if (bl) {
+            this.entityData.set(DATA_FLAGS_ID, (byte)(this.entityData.get(DATA_FLAGS_ID) | i));
+        } else {
+            this.entityData.set(DATA_FLAGS_ID, (byte)(this.entityData.get(DATA_FLAGS_ID) & ~i));
+        }
+
+    }
+
+    private boolean getFlag(int i) {
+        return (this.entityData.get(DATA_FLAGS_ID) & i) != 0;
+    }
+
+    void wakeUp() {
+        this.setSleeping(false);
+    }
+
+    public void tick() {
+        super.tick();
+        if (this.isEffectiveAi()) {
+            if (this.isInWater() || this.getTarget() != null || this.level().isThundering()) {
+                this.wakeUp();
+            }
+
+            if (this.isInWater() || this.isSleeping()) {
+                this.setInSittingPose(false);
+            }
+        }
+
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();
         this.level();
+
+        this.blockPosition();
+        if (this.level().getBlockState(this.blockPosition()).is(HamstersBlocks.HAMSTER_WHEEL)) {
+            this.setDeltaMovement(0, 0, 0);
+        }
 
         if (this.isInterested()) {
             if (this.tickCount % 40 == 0) {
@@ -273,6 +374,17 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
     // endregion
 
     // region BREEDING / VARIANTS / MIXING
+
+    public boolean canMate(Animal animal) {
+        if (!this.isTame()) {
+            return false;
+        } else if (!(animal instanceof Hamster)) {
+            return false;
+        } else {
+            Hamster hamster = (Hamster) animal;
+            return hamster.isTame() && super.canMate(animal);
+        }
+    }
 
 
     public Hamster.Variant getVariant() {
@@ -352,12 +464,14 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
     @Override
     protected void pickUpItem(ItemEntity pItemEntity) {
         ItemStack stack = pItemEntity.getItem();
-        if (this.getMainHandItem().isEmpty() && FOOD_ITEMS.test(stack)) {
-            this.onItemPickup(pItemEntity);
-            this.setItemSlot(EquipmentSlot.MAINHAND, stack);
-            this.handDropChances[EquipmentSlot.MAINHAND.getIndex()] = 2.0F;
-            this.take(pItemEntity, stack.getCount());
-            pItemEntity.discard();
+        if (!this.isSleeping()) {
+            if (this.getMainHandItem().isEmpty() && FOOD_ITEMS.test(stack)) {
+                this.onItemPickup(pItemEntity);
+                this.setItemSlot(EquipmentSlot.MAINHAND, stack);
+                this.handDropChances[EquipmentSlot.MAINHAND.getIndex()] = 2.0F;
+                this.take(pItemEntity, stack.getCount());
+                pItemEntity.discard();
+            }
         }
     }
 
@@ -414,11 +528,13 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<>(this, "controller", 5, this::animController));
+        controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::animController));
     }
 
     protected <E extends Hamster> PlayState animController(final AnimationState<E> event) {
-        if (this.isInterested()) {
+        if (this.isSleeping()) {
+            event.setAnimation(SLEEP);
+        } else if (this.isInterested() || this.isInSittingPose()) {
             event.setAnimation(STANDING);
         }  else if (event.isMoving()) {
             if (this.isSprinting()) {
@@ -441,4 +557,78 @@ public class Hamster extends HamstersAnimal implements GeoEntity, Catchable {
     }
 
     // endregion
+
+
+
+    private class SleepGoal extends HamsterBehaviorGoal {
+        private final int WAIT_TIME_BEFORE_SLEEP = random.nextInt(100) + 100;
+        private int countdown;
+
+        public SleepGoal() {
+            super();
+            this.countdown = Hamster.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
+            this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
+        }
+
+        public boolean canUse() {
+            if (Hamster.this.xxa == 0.0F && Hamster.this.yya == 0.0F && Hamster.this.zza == 0.0F) {
+                return this.canSleep() || Hamster.this.isSleeping();
+            } else {
+                return false;
+            }
+        }
+
+        public boolean canContinueToUse() {
+            return this.canSleep();
+        }
+
+        private boolean canSleep() {
+            if (this.countdown > 0) {
+                --this.countdown;
+                return false;
+            } else {
+                return Hamster.this.level().isDay() && !Hamster.this.isInPowderSnow && !this.alertable();
+            }
+        }
+
+        public void stop() {
+            this.countdown = Hamster.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
+            clearStates();
+        }
+
+        public void start() {
+            Hamster.this.setInSittingPose(false);
+            Hamster.this.setIsInterested(false);
+            Hamster.this.setJumping(false);
+            Hamster.this.setSleeping(true);
+            Hamster.this.getNavigation().stop();
+            Hamster.this.getMoveControl().setWantedPosition(Hamster.this.getX(), Hamster.this.getY(), Hamster.this.getZ(), 0.0);
+        }
+    }
+
+    private abstract class HamsterBehaviorGoal extends Goal {
+        private final TargetingConditions alertableTargeting = TargetingConditions.forNonCombat().range(6.0).ignoreLineOfSight().selector(new HamsterAlertableEntitiesSelector());
+
+        HamsterBehaviorGoal() {
+        }
+
+        protected boolean alertable() {
+            return !Hamster.this.level().getNearbyEntities(LivingEntity.class, this.alertableTargeting, Hamster.this, Hamster.this.getBoundingBox().inflate(12.0, 6.0, 12.0)).isEmpty();
+        }
+    }
+
+    public static class HamsterAlertableEntitiesSelector implements Predicate<LivingEntity> {
+        public HamsterAlertableEntitiesSelector() {
+        }
+
+        public boolean test(LivingEntity livingEntity) {
+            if (livingEntity instanceof Hamster) {
+                return false;
+            } else if (livingEntity instanceof Player && (livingEntity.isSpectator() || ((Player)livingEntity).isCreative())) {
+                return false;
+            } else {
+                return !livingEntity.isSleeping() && !livingEntity.isDiscrete();
+            }
+        } 
+    }
 }

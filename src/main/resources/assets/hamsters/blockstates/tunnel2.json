@@ -1,0 +1,123 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "hamsters:block/side"
+      },
+      "when": {
+        "north": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "hamsters:block/side",
+        "y": 90
+      },
+      "when": {
+        "east": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "hamsters:block/side",
+        "y": 180
+      },
+      "when": {
+        "south": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "hamsters:block/side",
+        "y": 270
+      },
+      "when": {
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "hamsters:block/side",
+        "x": 270
+      },
+      "when": {
+        "up": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "hamsters:block/side",
+        "x": 90
+      },
+      "when": {
+        "down": "false"
+      }
+    },
+    {
+      "apply": [
+        {
+          "model": "hamsters:block/base",
+          "uvlock": true
+        }
+      ],
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": [
+        {
+          "model": "hamsters:block/base",
+          "uvlock": true
+        }
+      ],
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": [
+        {
+          "model": "hamsters:block/base",
+          "uvlock": true
+        }
+      ],
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": [
+        {
+          "model": "hamsters:block/base",
+          "uvlock": true
+        }
+      ],
+      "when": {
+        "west": "true"
+      }
+    },
+    {
+      "apply": [
+        {
+          "model": "hamsters:block/base",
+          "uvlock": true
+        }
+      ],
+      "when": {
+        "up": "true"
+      }
+    },
+    {
+      "apply": [
+        {
+          "model": "hamsters:block/base",
+          "uvlock": true
+        }
+      ],
+      "when": {
+        "down": "true"
+      }
+    }
+  ]
+}

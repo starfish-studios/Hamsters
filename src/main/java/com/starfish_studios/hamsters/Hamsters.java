@@ -16,8 +16,7 @@ public class Hamsters implements ModInitializer {
 				HamstersItems.class,
 				HamstersBlocks.class,
 				HamstersEntityType.class,
-				HamstersPointOfInterestTypes.class,
-				HamstersBlockEntityType.class
+				HamstersBlockEntities.class
 		);
 		HamstersVanillaIntegration.serverInit();
 	}
