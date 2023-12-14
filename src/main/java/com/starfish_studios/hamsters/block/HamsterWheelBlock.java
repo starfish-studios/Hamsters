@@ -1,21 +1,15 @@
 package com.starfish_studios.hamsters.block;
 
-import com.starfish_studios.hamsters.block.entity.HamsterWheelBlockEntity;
+import com.starfish_studios.hamsters.entity.Hamster;
+import com.starfish_studios.hamsters.entity.SeatEntity;
 import com.starfish_studios.hamsters.registry.HamstersBlockEntities;
 import com.starfish_studios.hamsters.registry.HamstersEntityType;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -29,13 +23,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.example.registry.BlockEntityRegistry;
+
+import java.util.List;
+import java.util.Optional;
 
 public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -48,6 +43,56 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     protected static final VoxelShape SOUTH = Block.box(1, 0, 0, 15, 16, 13);
     protected static final VoxelShape EAST = Block.box(0, 0, 1, 13, 16, 15);
     protected static final VoxelShape WEST = Block.box(3, 0, 1, 16, 16, 15);
+
+    public boolean isMountable(BlockState state) {
+        return true;
+    }
+
+
+    public BlockPos primaryDismountLocation(Level level, BlockState state, BlockPos pos) {
+        return pos;
+    }
+
+    public float setRiderRotation(BlockState state, Entity entity) {
+        return entity.getYRot();
+    }
+
+    public static boolean isOccupied(Level level, BlockPos pos) {
+        return !level.getEntitiesOfClass(SeatEntity.class, new AABB(pos)).isEmpty();
+    }
+
+    public float seatHeight(BlockState state) {
+        return 0F;
+    }
+
+    public static Optional<Entity> getLeashed(Player player) {
+        List<Entity> entities = player.level().getEntities((Entity) null, player.getBoundingBox().inflate(10), e -> true);
+        for (Entity e : entities)
+            if (e instanceof Mob mob && mob.getLeashHolder() == player && canBePickedUp(e)) return Optional.of(mob);
+        return Optional.empty();
+    }
+
+    public static boolean ejectSeatedExceptPlayer(Level level, SeatEntity seatEntity) {
+        List<Entity> passengers = seatEntity.getPassengers();
+        if (!passengers.isEmpty() && passengers.get(0) instanceof Player) return false;
+        if (!level.isClientSide) seatEntity.ejectPassengers();
+        return true;
+    }
+
+    public static boolean canBePickedUp(Entity passenger) {
+        if (passenger instanceof Player) return false;
+        return passenger instanceof LivingEntity;
+    }
+
+    public static void sitDown(Level level, BlockPos pos, Entity entity) {
+        if (level.isClientSide) return;
+
+        SeatEntity seat = new SeatEntity(level, pos);
+        level.addFreshEntity(seat);
+        entity.startRiding(seat);
+
+        level.updateNeighbourForOutputSignal(pos, level.getBlockState(pos).getBlock());
+    }
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
@@ -76,15 +121,23 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     @Override
     public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
         if (player.getItemInHand(interactionHand).isEmpty() || (!player.getItemInHand(interactionHand).isEmpty() && !player.isShiftKeyDown())) {
+            if (!level.mayInteract(player, blockPos)) return InteractionResult.PASS;
+
+            if (!isMountable(blockState) || player.isPassenger() || player.isCrouching()) return InteractionResult.PASS;
 
             // TODO: If the wheel is right-clicked, a Hamster is spawned in front of the wheel. This is to replicate how it could be forcibly ejected.
             // Perhaps if it is ejected, it would search for the hamster inside and just teleport it instead of spawning a new one.
 
-            if (!level.isClientSide) {
-                blockPos = blockPos.relative(blockState.getValue(FACING));
-                HamstersEntityType.HAMSTER.spawn((ServerLevel) level, player.getItemInHand(interactionHand), null, blockPos, MobSpawnType.EVENT, true, false);
+            if (isOccupied(level, blockPos)) {
+                List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(blockPos));
+                if (ejectSeatedExceptPlayer(level, seats.get(0))) return InteractionResult.SUCCESS;
+                return InteractionResult.PASS;
             }
+
+            if (level.isClientSide) return InteractionResult.SUCCESS;
+            sitDown(level, blockPos, getLeashed(player).orElse(player));
             return InteractionResult.SUCCESS;
+
 
         }
         return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);

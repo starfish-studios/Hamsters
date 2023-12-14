@@ -1,5 +1,6 @@
 package com.starfish_studios.hamsters.block.entity;
 
+import com.starfish_studios.hamsters.block.HamsterWheelBlock;
 import com.starfish_studios.hamsters.registry.HamstersBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,6 +23,8 @@ public class HamsterWheelBlockEntity extends BlockEntity implements GeoBlockEnti
     }
 
 
+
+
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
         controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::controller));
@@ -29,8 +32,13 @@ public class HamsterWheelBlockEntity extends BlockEntity implements GeoBlockEnti
 
     // TODO: The wheel currently just spins 24/7. We need to make it spin when a hamster is inside.
     private <E extends HamsterWheelBlockEntity> PlayState controller(final AnimationState<E> event) {
-        event.getController().setAnimation(SPIN);
-        return PlayState.CONTINUE;
+        assert level != null;
+        BlockPos blockPos = this.getBlockPos();
+        if (HamsterWheelBlock.isOccupied(level, blockPos)) {
+            event.getController().setAnimation(SPIN);
+            return PlayState.CONTINUE;
+        }
+        return PlayState.STOP;
     }
 
     @Override

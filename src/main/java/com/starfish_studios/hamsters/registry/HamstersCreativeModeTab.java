@@ -25,7 +25,7 @@ public class HamstersCreativeModeTab {
         output.accept(HAMSTER_SPAWN_EGG);
 
         // TODO: Not very pretty right now. Maybe there's a better way to do this?
-        
+
         ItemStack item0 = new ItemStack(HAMSTER.get());
         item0.getOrCreateTag().putInt("Variant", 0);
         output.accept(item0);

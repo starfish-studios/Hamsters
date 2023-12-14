@@ -587,7 +587,7 @@ public class Hamster extends TamableAnimal implements GeoEntity, Catchable {
                 --this.countdown;
                 return false;
             } else {
-                return Hamster.this.level().isDay() && !Hamster.this.isInPowderSnow && !this.alertable();
+                return Hamster.this.level().isDay() && !Hamster.this.isInPowderSnow && !this.alertable() && !Hamster.this.isPassenger();
             }
         }
 
