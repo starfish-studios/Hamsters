@@ -5,7 +5,9 @@ import com.starfish_studios.hamsters.entity.SeatEntity;
 import com.starfish_studios.hamsters.registry.HamstersBlockEntities;
 import com.starfish_studios.hamsters.registry.HamstersEntityType;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
@@ -25,6 +27,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -108,8 +111,7 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING,
-                context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Nullable
@@ -126,20 +128,14 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
 
             if (!isMountable(blockState) || player.isPassenger() || player.isCrouching()) return InteractionResult.PASS;
 
-            // TODO: If the wheel is right-clicked, a Hamster is spawned in front of the wheel. This is to replicate how it could be forcibly ejected.
-            // Perhaps if it is ejected, it would search for the hamster inside and just teleport it instead of spawning a new one.
-
             if (isOccupied(level, blockPos)) {
                 List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(blockPos));
                 if (ejectSeatedExceptPlayer(level, seats.get(0))) return InteractionResult.SUCCESS;
                 return InteractionResult.PASS;
             }
 
-            if (level.isClientSide) return InteractionResult.SUCCESS;
             sitDown(level, blockPos, getLeashed(player).orElse(null));
             return InteractionResult.SUCCESS;
-
-
         }
         return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);
     }

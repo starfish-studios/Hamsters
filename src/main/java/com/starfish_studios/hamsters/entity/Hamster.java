@@ -13,16 +13,14 @@ import com.starfish_studios.hamsters.registry.HamstersSoundEvents;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -34,9 +32,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -60,6 +60,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
 import java.util.function.Predicate;
+
+import static com.starfish_studios.hamsters.block.HamsterWheelBlock.FACING;
 
 public class Hamster extends TamableAnimal implements GeoEntity {
     // region
@@ -85,6 +87,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         if (!this.isSleeping()) {
             this.setCanPickUpLoot(true);
         }
+        this.lookControl = new Hamster.HamsterLookControl();
         // region PATHFINDING
         this.setPathfindingMalus(BlockPathTypes.LAVA, 8.0F);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 1.0F);
@@ -132,7 +135,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         ItemStack itemStack = player.getItemInHand(interactionHand);
         if (this.level().isClientSide) {
             if (this.isTame() && this.isOwnedBy(player)) {
-                    return InteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             } else {
                 return !this.isFood(itemStack) || !(this.getHealth() < this.getMaxHealth()) && this.isTame() ? InteractionResult.PASS : InteractionResult.SUCCESS;
             }
@@ -197,24 +200,19 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         if (mob.hasCustomName()) {
             itemStack.setHoverName(mob.getCustomName());
         }
-        mob.saveID(compoundTag);
-    }
-
-    public CompoundTag saveID(CompoundTag compoundTag) {
         try {
-            compoundTag.putShort("Air", (short)this.getAirSupply());
-            compoundTag.putBoolean("Invulnerable", this.isInvulnerable());
-            if (this.isCustomNameVisible()) compoundTag.putBoolean("CustomNameVisible", this.isCustomNameVisible());
-            if (this.isSilent()) compoundTag.putBoolean("Silent", this.isSilent());
-            if (this.isNoGravity()) compoundTag.putBoolean("NoGravity", this.isNoGravity());
-            if (this.hasGlowingTag()) compoundTag.putBoolean("Glowing", true);
-            this.addAdditionalSaveData(compoundTag);
-            return compoundTag;
+            compoundTag.putShort("Air", (short)mob.getAirSupply());
+            compoundTag.putBoolean("Invulnerable", mob.isInvulnerable());
+            if (mob.isCustomNameVisible()) compoundTag.putBoolean("CustomNameVisible", mob.isCustomNameVisible());
+            if (mob.isSilent()) compoundTag.putBoolean("Silent", mob.isSilent());
+            if (mob.isNoGravity()) compoundTag.putBoolean("NoGravity", mob.isNoGravity());
+            if (mob.hasGlowingTag()) compoundTag.putBoolean("Glowing", true);
+            mob.addAdditionalSaveData(compoundTag);
         }
         catch (Throwable var9) {
             CrashReport crashReport = CrashReport.forThrowable(var9, "Saving entity NBT");
             CrashReportCategory crashReportCategory = crashReport.addCategory("Entity being saved");
-            this.fillCrashReportCategory(crashReportCategory);
+            mob.fillCrashReportCategory(crashReportCategory);
             throw new ReportedException(crashReport);
         }
     }
@@ -568,9 +566,97 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
     // endregion
 
+    // region GOALS
+
+    public class HamsterLookControl extends LookControl {
+        public HamsterLookControl() {
+            super(Hamster.this);
+        }
+
+        public void tick() {
+            if (!(Hamster.this.getVehicle() instanceof SeatEntity)) {
+                super.tick();
+            } else {
+
+                BlockState state = Hamster.this.level().getBlockState(Hamster.this.blockPosition());
+                if (state.is(HamstersBlocks.HAMSTER_WHEEL)) {
+                    BlockPos pos1;
+
+                    if (state.getValue(FACING) == Direction.SOUTH) {
+                        pos1 = Hamster.this.blockPosition().east(1);
+                    } else if (state.getValue(FACING) == Direction.NORTH) {
+                        pos1 = Hamster.this.blockPosition().west(1);
+                    } else if (state.getValue(FACING) == Direction.EAST) {
+                        pos1 = Hamster.this.blockPosition().north(1);
+                    } else {
+                        pos1 = Hamster.this.blockPosition().south(1);
+                    }
+                    Hamster.this.setSleeping(false);
+                    Hamster.this.setInSittingPose(false);
+                    Hamster.this.lookAt(EntityAnchorArgument.Anchor.FEET, new Vec3(pos1.getX() + 0.5f, pos1.getY() + 0.5f, pos1.getZ() + 0.5f));
+                }
+            }
+        }
+
+        protected boolean resetXRotOnTick() {
+            return !(Hamster.this.getVehicle() instanceof SeatEntity);
+        }
+    }
+
+    private class RunInWheelGoal extends Goal {
+        private final TargetingConditions alertableTargeting = TargetingConditions.forNonCombat().range(6.0).ignoreLineOfSight().selector(new HamsterAlertableEntitiesSelector());
+        private final int WAIT_TIME_BEFORE_SLEEP = random.nextInt(100) + 100;
+        private int countdown;
+
+        public RunInWheelGoal() {
+            super();
+            this.countdown = Hamster.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
+            this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
+        }
+
+        public boolean canUse() {
+            if (Hamster.this.xxa == 0.0F && Hamster.this.yya == 0.0F && Hamster.this.zza == 0.0F) {
+                return this.canSleep() || Hamster.this.isSleeping();
+            } else {
+                return false;
+            }
+        }
+
+        public boolean canContinueToUse() {
+            return this.canSleep();
+        }
+
+        private boolean canSleep() {
+            if (this.countdown > 0) {
+                --this.countdown;
+                return false;
+            } else {
+                return Hamster.this.level().isDay() && !Hamster.this.isInPowderSnow && !this.alertable() && !Hamster.this.isPassenger();
+            }
+        }
+
+        public void stop() {
+            this.countdown = Hamster.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
+            clearStates();
+        }
+
+        public void start() {
+            Hamster.this.setInSittingPose(false);
+            Hamster.this.setIsInterested(false);
+            Hamster.this.setJumping(false);
+            Hamster.this.setSleeping(true);
+            Hamster.this.getNavigation().stop();
+            Hamster.this.getMoveControl().setWantedPosition(Hamster.this.getX(), Hamster.this.getY(), Hamster.this.getZ(), 0.0);
+        }
 
 
-    private class SleepGoal extends HamsterBehaviorGoal {
+        protected boolean alertable() {
+            return !Hamster.this.level().getNearbyEntities(LivingEntity.class, this.alertableTargeting, Hamster.this, Hamster.this.getBoundingBox().inflate(12.0, 6.0, 12.0)).isEmpty();
+        }
+    }
+
+    private class SleepGoal extends Goal {
+        private final TargetingConditions alertableTargeting = TargetingConditions.forNonCombat().range(6.0).ignoreLineOfSight().selector(new HamsterAlertableEntitiesSelector());
         private final int WAIT_TIME_BEFORE_SLEEP = random.nextInt(100) + 100;
         private int countdown;
 
@@ -614,13 +700,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
             Hamster.this.getNavigation().stop();
             Hamster.this.getMoveControl().setWantedPosition(Hamster.this.getX(), Hamster.this.getY(), Hamster.this.getZ(), 0.0);
         }
-    }
 
-    private abstract class HamsterBehaviorGoal extends Goal {
-        private final TargetingConditions alertableTargeting = TargetingConditions.forNonCombat().range(6.0).ignoreLineOfSight().selector(new HamsterAlertableEntitiesSelector());
-
-        HamsterBehaviorGoal() {
-        }
 
         protected boolean alertable() {
             return !Hamster.this.level().getNearbyEntities(LivingEntity.class, this.alertableTargeting, Hamster.this, Hamster.this.getBoundingBox().inflate(12.0, 6.0, 12.0)).isEmpty();
@@ -641,4 +721,5 @@ public class Hamster extends TamableAnimal implements GeoEntity {
             }
         }
     }
+    // endregion
 }
