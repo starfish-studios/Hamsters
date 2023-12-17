@@ -36,6 +36,7 @@ import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -447,10 +448,20 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     }
 
     @Nullable
-    public Hamster getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob entity) {
+    public Hamster getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob ageableMob) {
         Hamster hamster = HamstersEntityType.HAMSTER.create(level);
-        assert hamster != null;
-        hamster.setVariant(Variant.values()[random.nextInt(Variant.values().length)]);
+        if (hamster != null && ageableMob instanceof Hamster hamster1) {
+            if (this.random.nextBoolean()) {
+                hamster.setVariant(this.getVariant());
+            } else {
+                hamster.setVariant(hamster1.getVariant());
+            }
+
+            if (this.isTame()) {
+                hamster.setOwnerUUID(this.getOwnerUUID());
+                hamster.setTame(true);
+            }
+        }
         return hamster;
     }
 
