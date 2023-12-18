@@ -10,6 +10,7 @@ import com.starfish_studios.hamsters.registry.HamstersBlocks;
 import com.starfish_studios.hamsters.registry.HamstersEntityType;
 import com.starfish_studios.hamsters.registry.HamstersItems;
 import com.starfish_studios.hamsters.registry.HamstersSoundEvents;
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -36,8 +37,6 @@ import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cat;
-import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -47,6 +46,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,6 +63,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static com.starfish_studios.hamsters.block.HamsterWheelBlock.FACING;
+import static com.starfish_studios.hamsters.block.HamsterWheelBlock.ejectSeatedExceptPlayer;
 
 public class Hamster extends TamableAnimal implements GeoEntity {
     // region
@@ -79,7 +80,8 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     private static final EntityDataAccessor<Boolean> DATA_INTERESTED = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> FROM_HAND = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
-    private int sleepTime;
+    private static final EntityDataAccessor<Integer> WAIT_TIME_BEFORE_RUN = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> WAIT_TIME_WHEN_RUNNING = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
 
     // endregion
 
@@ -115,6 +117,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0));
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(9, new RunInWheelGoal());
     }
 
     @Override
@@ -282,6 +285,8 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         this.entityData.define(EAT_COUNTER, 0);
         this.entityData.define(DATA_INTERESTED, false);
         this.entityData.define(DATA_VARIANT, 2);
+        this.entityData.define(WAIT_TIME_BEFORE_RUN, 0);
+        this.entityData.define(WAIT_TIME_WHEN_RUNNING, 0);
         this.entityData.define(FROM_HAND, false);
     }
 
@@ -289,6 +294,8 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     public void readAdditionalSaveData(CompoundTag compoundTag) {
         super.readAdditionalSaveData(compoundTag);
         this.setVariant(Hamster.Variant.BY_ID[compoundTag.getInt("Variant")]);
+        this.setWaitTimeBeforeRunTicks(compoundTag.getInt("RunTicks"));
+        this.setWaitTimeWhenRunningTicks(compoundTag.getInt("RuningTicks"));
         this.setFromHand(compoundTag.getBoolean("FromHand"));
     }
 
@@ -296,8 +303,25 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     public void addAdditionalSaveData(CompoundTag compoundTag) {
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putInt("Variant", getVariant().getId());
+        compoundTag.putInt("RunTicks", this.getWaitTimeBeforeRunTicks());
+        compoundTag.putInt("RuningTicks", this.getWaitTimeWhenRunningTicks());
         compoundTag.putBoolean("FromHand", this.fromHand());
     }
+
+    public int getWaitTimeBeforeRunTicks() {
+        return this.entityData.get(WAIT_TIME_BEFORE_RUN);
+    }
+    public void setWaitTimeBeforeRunTicks(int ticks) {
+        this.entityData.set(WAIT_TIME_BEFORE_RUN, ticks);
+    }
+
+    public int getWaitTimeWhenRunningTicks() {
+        return this.entityData.get(WAIT_TIME_BEFORE_RUN);
+    }
+    public void setWaitTimeWhenRunningTicks(int ticks) {
+        this.entityData.set(WAIT_TIME_BEFORE_RUN, ticks);
+    }
+
 
     public boolean isSleeping() {
         return this.getFlag(32);
@@ -616,48 +640,39 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
     private class RunInWheelGoal extends Goal {
         private final TargetingConditions alertableTargeting = TargetingConditions.forNonCombat().range(6.0).ignoreLineOfSight().selector(new HamsterAlertableEntitiesSelector());
-        private final int WAIT_TIME_BEFORE_SLEEP = random.nextInt(100) + 100;
-        private int countdown;
 
         public RunInWheelGoal() {
             super();
-            this.countdown = Hamster.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
             this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
         }
 
         public boolean canUse() {
-            if (Hamster.this.xxa == 0.0F && Hamster.this.yya == 0.0F && Hamster.this.zza == 0.0F) {
-                return this.canSleep() || Hamster.this.isSleeping();
-            } else {
-                return false;
-            }
+            return !Hamster.this.isSleeping() && !Hamster.this.isInPowderSnow && !this.alertable() && (Hamster.this.isPassenger() && Hamster.this.getVehicle() instanceof SeatEntity) && Hamster.this.getWaitTimeBeforeRunTicks() == 0;
         }
 
         public boolean canContinueToUse() {
-            return this.canSleep();
+            return Hamster.this.getWaitTimeWhenRunningTicks() > 0;
         }
 
-        private boolean canSleep() {
-            if (this.countdown > 0) {
-                --this.countdown;
-                return false;
-            } else {
-                return Hamster.this.level().isDay() && !Hamster.this.isInPowderSnow && !this.alertable() && !Hamster.this.isPassenger();
+        @Override
+        public void tick() {
+            super.tick();
+            if (Hamster.this.getWaitTimeWhenRunningTicks() > 0) {
+                Hamster.this.setWaitTimeWhenRunningTicks(Hamster.this.getWaitTimeWhenRunningTicks() - 1);
             }
         }
 
         public void stop() {
-            this.countdown = Hamster.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
+            Hamster.this.setWaitTimeBeforeRunTicks(Hamster.this.random.nextInt(400) + 1200);
+            if (Hamster.this.isPassenger()) {
+                List<SeatEntity> seats = Hamster.this.level().getEntitiesOfClass(SeatEntity.class, new AABB(Hamster.this.blockPosition()));
+                if (seats.get(0) != null) ejectSeatedExceptPlayer(Hamster.this.level(), seats.get(0));
+            }
             clearStates();
         }
 
         public void start() {
-            Hamster.this.setInSittingPose(false);
-            Hamster.this.setIsInterested(false);
-            Hamster.this.setJumping(false);
-            Hamster.this.setSleeping(true);
-            Hamster.this.getNavigation().stop();
-            Hamster.this.getMoveControl().setWantedPosition(Hamster.this.getX(), Hamster.this.getY(), Hamster.this.getZ(), 0.0);
+            Hamster.this.setWaitTimeWhenRunningTicks(Hamster.this.random.nextInt(300) + 400);
         }
 
 

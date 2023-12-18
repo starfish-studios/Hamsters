@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -37,6 +38,7 @@ public class HamsterItem extends Item {
 
         hamster.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Objects.requireNonNull(useOnContext.getPlayer()).getYRot(), 0.0f);
 
+        hamster.playSound(SoundEvents.CHICKEN_EGG);
         useOnContext.getLevel().addFreshEntity(hamster);
         useOnContext.getPlayer().setItemInHand(useOnContext.getHand(), ItemStack.EMPTY);
         return InteractionResult.SUCCESS;

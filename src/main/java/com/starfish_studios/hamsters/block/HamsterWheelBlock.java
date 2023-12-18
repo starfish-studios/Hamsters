@@ -129,12 +129,22 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
             if (!isMountable(blockState) || player.isPassenger() || player.isCrouching()) return InteractionResult.PASS;
 
             if (isOccupied(level, blockPos)) {
+
+
                 List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(blockPos));
+
+                if (seats.get(0).getFirstPassenger() instanceof Hamster hamster) {
+                    hamster.setWaitTimeWhenRunningTicks(0);
+                    hamster.setWaitTimeBeforeRunTicks(hamster.getRandom().nextInt(200) + 600);
+                }
+
                 if (ejectSeatedExceptPlayer(level, seats.get(0))) return InteractionResult.SUCCESS;
                 return InteractionResult.PASS;
             }
-
-            sitDown(level, blockPos, getLeashed(player).orElse(null));
+            if (getLeashed(player).isPresent() && getLeashed(player).get() instanceof Hamster hamster) {
+                hamster.setWaitTimeBeforeRunTicks(0);
+                sitDown(level, blockPos, hamster);
+            }
             return InteractionResult.SUCCESS;
         }
         return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);
