@@ -381,9 +381,9 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         if (this.getWaitTimeWhenRunningTicks() > 0) {
             this.setWaitTimeWhenRunningTicks(this.getWaitTimeWhenRunningTicks() - 1);
         }
-        if (Hamster.this.isPassenger() && Hamster.this.getVehicle() instanceof SeatEntity && this.getWaitTimeWhenRunningTicks() == 0) {
-            Hamster.this.setWaitTimeBeforeRunTicks(Hamster.this.random.nextInt(400) + 1200);
-            Hamster.this.stopRiding();
+        if (this.isPassenger() && this.getVehicle() instanceof SeatEntity && this.getWaitTimeWhenRunningTicks() == 0) {
+            this.setWaitTimeBeforeRunTicks(this.random.nextInt(400) + 1200);
+            this.stopRiding();
             clearStates();
         }
 
@@ -602,6 +602,9 @@ public class Hamster extends TamableAnimal implements GeoEntity {
                 event.setControllerSpeed(1.1F);
                 event.setAnimation(WALK);
             }
+        }  else if (this.isPassenger() && this.getVehicle() instanceof SeatEntity ) {
+            event.setControllerSpeed(1.4F);
+            event.setAnimation(WALK);
         } else {
             event.setAnimation(IDLE);
         }
