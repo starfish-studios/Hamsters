@@ -7,10 +7,7 @@ package com.starfish_studios.hamsters.entity;
 
 import com.starfish_studios.hamsters.block.HamsterWheelBlock;
 import com.starfish_studios.hamsters.entity.common.SearchForItemsGoal;
-import com.starfish_studios.hamsters.registry.HamstersBlocks;
-import com.starfish_studios.hamsters.registry.HamstersEntityType;
-import com.starfish_studios.hamsters.registry.HamstersItems;
-import com.starfish_studios.hamsters.registry.HamstersSoundEvents;
+import com.starfish_studios.hamsters.registry.*;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -77,7 +74,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
     private static final EntityDataAccessor<Integer> EAT_COUNTER = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
 
-    private static final Ingredient FOOD_ITEMS = Ingredient.of(ItemTags.VILLAGER_PLANTABLE_SEEDS);
+    private static final Ingredient FOOD_ITEMS = Ingredient.of(HamstersTags.HAMSTER_FOOD);
     private static final EntityDataAccessor<Boolean> DATA_INTERESTED = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> FROM_HAND = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);

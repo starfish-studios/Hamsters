@@ -3,14 +3,13 @@ package com.starfish_studios.hamsters.block;
 import com.starfish_studios.hamsters.entity.Hamster;
 import com.starfish_studios.hamsters.entity.SeatEntity;
 import com.starfish_studios.hamsters.registry.HamstersBlockEntities;
-import com.starfish_studios.hamsters.registry.HamstersEntityType;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -27,7 +26,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -40,12 +38,14 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
 
     public HamsterWheelBlock(Properties properties) {
         super(properties);
+        registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
     protected static final VoxelShape NORTH = Block.box(1, 0, 3, 15, 16, 16);
     protected static final VoxelShape SOUTH = Block.box(1, 0, 0, 15, 16, 13);
     protected static final VoxelShape EAST = Block.box(0, 0, 1, 13, 16, 15);
     protected static final VoxelShape WEST = Block.box(3, 0, 1, 16, 16, 15);
+
 
     public boolean isMountable(BlockState state) {
         return true;
@@ -61,6 +61,8 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     }
 
     public static boolean isOccupied(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        // level.setBlock(pos, state.setValue(POWERED, true), 3);
         return !level.getEntitiesOfClass(SeatEntity.class, new AABB(pos)).isEmpty();
     }
 
@@ -160,7 +162,6 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
         };
     }
 
-    // Can only survive on top of solid blocks.
     @Override
     public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
         return world.getBlockState(pos.below()).isFaceSturdy(world, pos.below(), net.minecraft.core.Direction.UP);

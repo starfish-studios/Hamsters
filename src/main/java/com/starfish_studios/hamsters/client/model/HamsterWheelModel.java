@@ -10,6 +10,7 @@ public class HamsterWheelModel extends DefaultedBlockGeoModel<HamsterWheelBlockE
     public HamsterWheelModel() {
         super(new ResourceLocation(Hamsters.MOD_ID, "hamster_wheel"));
     }
+
     @Override
     public ResourceLocation getAnimationResource(HamsterWheelBlockEntity hamsterWheel) {
         return new ResourceLocation(Hamsters.MOD_ID, "animations/hamster_wheel.animation.json");

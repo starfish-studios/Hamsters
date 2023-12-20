@@ -2,6 +2,8 @@ package com.starfish_studios.hamsters.registry;
 
 import com.starfish_studios.hamsters.Hamsters;
 import com.starfish_studios.hamsters.entity.*;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,6 +28,11 @@ public class HamstersEntityType {
     );
 
     public static final Supplier<EntityType<SeatEntity>> SEAT = registerEntityType("seat", (type, world) -> new SeatEntity(world), MobCategory.MISC, 0.0F, 0.0F);
+
+    static {
+        BiomeModifications.addSpawn(BiomeSelectors.tag(HamstersTags.HAS_HAMSTER), MobCategory.CREATURE, HamstersEntityType.HAMSTER, 30, 1, 1);
+    }
+
 
 
     public static <T extends Entity> Supplier<EntityType<T>> registerEntityType(String name, EntityType.EntityFactory<T> factory, MobCategory category, float width, float height) {

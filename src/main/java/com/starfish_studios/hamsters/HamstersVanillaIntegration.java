@@ -38,7 +38,7 @@ public class HamstersVanillaIntegration {
         }
 
         private static void registerBlockRenderLayers() {
-            BlockRenderLayerMap.INSTANCE.putBlock(HamstersBlocks.TUNNEL, RenderType.translucent());
+            // BlockRenderLayerMap.INSTANCE.putBlock(HamstersBlocks.TUNNEL, RenderType.translucent());
         }
     }
 

@@ -18,42 +18,41 @@ public class HamstersCreativeModeTab {
     @SuppressWarnings("unused")
     public static final CreativeModeTab ITEM_GROUP = register("item_group", FabricItemGroup.builder().icon(HAMSTER_SPAWN_EGG::getDefaultInstance).title(Component.translatable("itemGroup.hamsters.tab")).displayItems((featureFlagSet, output) -> {
 
-        output.accept(TUNNEL);
+        // output.accept(TUNNEL);
         output.accept(HamstersItems.HAMSTER_WHEEL);
 
 
         output.accept(HAMSTER_SPAWN_EGG);
-        output.accept(HAMSTER);
 
         // TODO: Not very pretty right now. Maybe there's a better way to do this?
 
-        //ItemStack item0 = new ItemStack(HAMSTER.get());
-        //item0.getOrCreateTag().putInt("Variant", 0);
-        //output.accept(item0);
-//
-        //ItemStack item1 = new ItemStack(HAMSTER.get());
-        //item1.getOrCreateTag().putInt("Variant", 1);
-        //output.accept(item1);
-        //
-        //ItemStack item2 = new ItemStack(HAMSTER.get());
-        //item2.getOrCreateTag().putInt("Variant", 2);
-        //output.accept(item2);
-        //
-        //ItemStack item3 = new ItemStack(HAMSTER.get());
-        //item3.getOrCreateTag().putInt("Variant", 3);
-        //output.accept(item3);
-//
-        //ItemStack item4 = new ItemStack(HAMSTER.get());
-        //item4.getOrCreateTag().putInt("Variant", 4);
-        //output.accept(item4);
-//
-        //ItemStack item5 = new ItemStack(HAMSTER.get());
-        //item5.getOrCreateTag().putInt("Variant", 5);
-        //output.accept(item5);
-//
-        //ItemStack item6 = new ItemStack(HAMSTER.get());
-        //item6.getOrCreateTag().putInt("Variant", 6);
-        //output.accept(item6);
+        ItemStack item0 = new ItemStack(HAMSTER);
+        item0.getOrCreateTag().putInt("Variant", 0);
+        output.accept(item0);
+
+        ItemStack item1 = new ItemStack(HAMSTER);
+        item1.getOrCreateTag().putInt("Variant", 1);
+        output.accept(item1);
+
+        ItemStack item2 = new ItemStack(HAMSTER);
+        item2.getOrCreateTag().putInt("Variant", 2);
+        output.accept(item2);
+
+        ItemStack item3 = new ItemStack(HAMSTER);
+        item3.getOrCreateTag().putInt("Variant", 3);
+        output.accept(item3);
+
+        ItemStack item4 = new ItemStack(HAMSTER);
+        item4.getOrCreateTag().putInt("Variant", 4);
+        output.accept(item4);
+
+        ItemStack item5 = new ItemStack(HAMSTER);
+        item5.getOrCreateTag().putInt("Variant", 5);
+        output.accept(item5);
+
+        ItemStack item6 = new ItemStack(HAMSTER);
+        item6.getOrCreateTag().putInt("Variant", 6);
+        output.accept(item6);
 
 
 

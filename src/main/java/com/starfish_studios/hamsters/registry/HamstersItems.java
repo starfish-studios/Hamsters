@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 public class HamstersItems {
 
     public static final Item HAMSTER_SPAWN_EGG = register("hamster_spawn_egg", new SpawnEggItem(HamstersEntityType.HAMSTER, 16747824, 16775119, new FabricItemSettings()));
-    public static final Item TUNNEL = register("tunnel", new BlockItem(HamstersBlocks.TUNNEL, new FabricItemSettings()));
+    // public static final Item TUNNEL = register("tunnel", new BlockItem(HamstersBlocks.TUNNEL, new FabricItemSettings()));
 
     public static final Item HAMSTER = register("hamster", new HamsterItem(new FabricItemSettings().stacksTo(1)));
 

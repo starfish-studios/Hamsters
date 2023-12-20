@@ -24,7 +24,6 @@ public class HamsterWheelBlockEntity extends BlockEntity implements GeoBlockEnti
 
 
 
-
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
         controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::controller));
