@@ -5,12 +5,12 @@
 
 package com.starfish_studios.hamsters.entity;
 
+import com.starfish_studios.hamsters.block.HamsterWheelBlock;
 import com.starfish_studios.hamsters.entity.common.SearchForItemsGoal;
 import com.starfish_studios.hamsters.registry.HamstersBlocks;
 import com.starfish_studios.hamsters.registry.HamstersEntityType;
 import com.starfish_studios.hamsters.registry.HamstersItems;
 import com.starfish_studios.hamsters.registry.HamstersSoundEvents;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -45,6 +45,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -83,6 +84,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     private static final EntityDataAccessor<Integer> WAIT_TIME_BEFORE_RUN = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> WAIT_TIME_WHEN_RUNNING = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
 
+    Hamster.HamsterGoToWheelGoal hamsterGoToWheelGoal;
     // endregion
 
     public Hamster(EntityType<? extends Hamster> entityType, Level level) {
@@ -111,6 +113,8 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(3, new SleepGoal());
+        this.hamsterGoToWheelGoal = new HamsterGoToWheelGoal();
+        this.goalSelector.addGoal(4, this.hamsterGoToWheelGoal);
         this.goalSelector.addGoal(4, new SearchForItemsGoal(this, 1.25F, FOOD_ITEMS, 8.0D, 8.0D));
         this.goalSelector.addGoal(4, new TemptGoal(this, 1.25, FOOD_ITEMS, false));
         this.goalSelector.addGoal(5, new FollowParentGoal(this, 1.25));
@@ -251,7 +255,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     }
 
     protected void playStepSound(BlockPos blockPos, BlockState blockState) {
-        this.playSound(SoundEvents.COW_STEP, 0.15F, 1.0F);
+        this.playSound(SoundEvents.WOLF_STEP, 0.15F, 3.0F);
     }
 
     protected void playBegSound() {
@@ -295,7 +299,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         super.readAdditionalSaveData(compoundTag);
         this.setVariant(Hamster.Variant.BY_ID[compoundTag.getInt("Variant")]);
         this.setWaitTimeBeforeRunTicks(compoundTag.getInt("RunTicks"));
-        this.setWaitTimeWhenRunningTicks(compoundTag.getInt("RuningTicks"));
+        this.setWaitTimeWhenRunningTicks(compoundTag.getInt("RunningTicks"));
         this.setFromHand(compoundTag.getBoolean("FromHand"));
     }
 
@@ -304,7 +308,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         super.addAdditionalSaveData(compoundTag);
         compoundTag.putInt("Variant", getVariant().getId());
         compoundTag.putInt("RunTicks", this.getWaitTimeBeforeRunTicks());
-        compoundTag.putInt("RuningTicks", this.getWaitTimeWhenRunningTicks());
+        compoundTag.putInt("RunningTicks", this.getWaitTimeWhenRunningTicks());
         compoundTag.putBoolean("FromHand", this.fromHand());
     }
 
@@ -316,10 +320,10 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     }
 
     public int getWaitTimeWhenRunningTicks() {
-        return this.entityData.get(WAIT_TIME_BEFORE_RUN);
+        return this.entityData.get(WAIT_TIME_WHEN_RUNNING);
     }
     public void setWaitTimeWhenRunningTicks(int ticks) {
-        this.entityData.set(WAIT_TIME_BEFORE_RUN, ticks);
+        this.entityData.set(WAIT_TIME_WHEN_RUNNING, ticks);
     }
 
 
@@ -370,6 +374,17 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         this.blockPosition();
         if (this.level().getBlockState(this.blockPosition()).is(HamstersBlocks.HAMSTER_WHEEL)) {
             this.setDeltaMovement(0, 0, 0);
+        }
+
+        System.out.println(getWaitTimeWhenRunningTicks());
+
+        if (this.getWaitTimeWhenRunningTicks() > 0) {
+            this.setWaitTimeWhenRunningTicks(this.getWaitTimeWhenRunningTicks() - 1);
+        }
+        if (Hamster.this.isPassenger() && Hamster.this.getVehicle() instanceof SeatEntity && this.getWaitTimeWhenRunningTicks() == 0) {
+            Hamster.this.setWaitTimeBeforeRunTicks(Hamster.this.random.nextInt(400) + 1200);
+            Hamster.this.stopRiding();
+            clearStates();
         }
 
         if (this.isInterested()) {
@@ -612,7 +627,6 @@ public class Hamster extends TamableAnimal implements GeoEntity {
             if (!(Hamster.this.getVehicle() instanceof SeatEntity)) {
                 super.tick();
             } else {
-
                 BlockState state = Hamster.this.level().getBlockState(Hamster.this.blockPosition());
                 if (state.is(HamstersBlocks.HAMSTER_WHEEL)) {
                     BlockPos pos1;
@@ -638,8 +652,116 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         }
     }
 
+    class HamsterGoToWheelGoal extends Goal {
+        private final Predicate<BlockState> VALID_GATHERING_BLOCKS;
+        @Nullable
+        private Vec3 wheelPos;
+
+        HamsterGoToWheelGoal() {
+            this.VALID_GATHERING_BLOCKS = blockState -> {
+                if (blockState.is(HamstersBlocks.HAMSTER_WHEEL)) {
+                    return !blockState.hasProperty(BlockStateProperties.WATERLOGGED) || !blockState.getValue(BlockStateProperties.WATERLOGGED);
+                }
+                return false;
+            };
+            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+
+            Optional<BlockPos> optional = this.findNearbyResource();
+            if (optional.isPresent() && !HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
+                Hamster.this.navigation.moveTo((double) optional.get().getX() + 0.5, optional.get().getY(), (double) optional.get().getZ() + 0.5, 1.2f);
+                return !Hamster.this.level().isRaining() && !Hamster.this.isSleeping() && !Hamster.this.isInSittingPose();
+            }
+            return false;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            Optional<BlockPos> optional = this.findNearbyResource();
+            if (optional.isPresent() && !HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
+                return !Hamster.this.level().isRaining() && !Hamster.this.isSleeping() && !Hamster.this.isInSittingPose();
+            }
+            return false;
+        }
+
+        @Override
+        public void stop() {
+            Hamster.this.navigation.stop();
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
+        public void tick() {
+            Optional<BlockPos> optional = this.findNearbyResource();
+
+            if (HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get())) {
+                stop();
+            }
+
+            if (!HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
+
+                Vec3 vec3 = Vec3.atBottomCenterOf(optional.get());
+                if (vec3.distanceTo(Hamster.this.position()) > 1.4) {
+                    wheelPos = vec3;
+                    this.setWantedPos();
+                    return;
+                }
+                if (wheelPos == null) {
+                    this.wheelPos = vec3;
+                }
+                if (Hamster.this.position().distanceTo(this.wheelPos) <= 1.4) {
+                    Hamster.this.setWaitTimeWhenRunningTicks(Hamster.this.random.nextInt(300) + 100);
+                    HamsterWheelBlock.sitDown(Hamster.this.level(), optional.get(), Hamster.this);
+                    this.stop();
+                }
+            }
+
+        }
+
+        private void setWantedPos() {
+            Hamster.this.getMoveControl().setWantedPosition(this.wheelPos.x(), this.wheelPos.y(), this.wheelPos.z(), 0.7f);
+        }
+
+
+        private Optional<BlockPos> findNearbyResource() {
+            return this.findNearestBlock(this.VALID_GATHERING_BLOCKS);
+        }
+
+        private Optional<BlockPos> findNearestBlock(Predicate<BlockState> predicate) {
+            BlockPos blockPos = Hamster.this.blockPosition();
+            BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+            int i = 0;
+            while ((double)i <= 5.0) {
+                int j = 0;
+                while ((double)j < 5.0) {
+                    int k = 0;
+                    while (k <= j) {
+                        int l = k < j && k > -j ? j : 0;
+                        while (l <= j) {
+                            mutableBlockPos.setWithOffset(blockPos, k, i - 1, l);
+                            if (blockPos.closerThan(mutableBlockPos, 5.0) && predicate.test(Hamster.this.level().getBlockState(mutableBlockPos))) {
+                                return Optional.of(mutableBlockPos);
+                            }
+                            l = l > 0 ? -l : 1 - l;
+                        }
+                        k = k > 0 ? -k : 1 - k;
+                    }
+                    ++j;
+                }
+                i = i > 0 ? -i : 1 - i;
+            }
+            return Optional.empty();
+        }
+    }
+
     private class RunInWheelGoal extends Goal {
-        private final TargetingConditions alertableTargeting = TargetingConditions.forNonCombat().range(6.0).ignoreLineOfSight().selector(new HamsterAlertableEntitiesSelector());
 
         public RunInWheelGoal() {
             super();
@@ -647,37 +769,11 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         }
 
         public boolean canUse() {
-            return !Hamster.this.isSleeping() && !Hamster.this.isInPowderSnow && !this.alertable() && (Hamster.this.isPassenger() && Hamster.this.getVehicle() instanceof SeatEntity) && Hamster.this.getWaitTimeBeforeRunTicks() == 0;
+            return !Hamster.this.isSleeping() && !Hamster.this.isInPowderSnow && (Hamster.this.isPassenger() && Hamster.this.getVehicle() instanceof SeatEntity);
         }
 
         public boolean canContinueToUse() {
-            return Hamster.this.getWaitTimeWhenRunningTicks() > 0;
-        }
-
-        @Override
-        public void tick() {
-            super.tick();
-            if (Hamster.this.getWaitTimeWhenRunningTicks() > 0) {
-                Hamster.this.setWaitTimeWhenRunningTicks(Hamster.this.getWaitTimeWhenRunningTicks() - 1);
-            }
-        }
-
-        public void stop() {
-            Hamster.this.setWaitTimeBeforeRunTicks(Hamster.this.random.nextInt(400) + 1200);
-            if (Hamster.this.isPassenger()) {
-                List<SeatEntity> seats = Hamster.this.level().getEntitiesOfClass(SeatEntity.class, new AABB(Hamster.this.blockPosition()));
-                if (seats.get(0) != null) ejectSeatedExceptPlayer(Hamster.this.level(), seats.get(0));
-            }
-            clearStates();
-        }
-
-        public void start() {
-            Hamster.this.setWaitTimeWhenRunningTicks(Hamster.this.random.nextInt(300) + 400);
-        }
-
-
-        protected boolean alertable() {
-            return !Hamster.this.level().getNearbyEntities(LivingEntity.class, this.alertableTargeting, Hamster.this, Hamster.this.getBoundingBox().inflate(12.0, 6.0, 12.0)).isEmpty();
+            return (Hamster.this.isPassenger() && Hamster.this.getVehicle() instanceof SeatEntity);
         }
     }
 
