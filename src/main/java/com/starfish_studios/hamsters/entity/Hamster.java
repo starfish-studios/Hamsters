@@ -808,7 +808,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
                 --this.countdown;
                 return false;
             } else {
-                return Hamster.this.level().isDay() && !Hamster.this.isInPowderSnow && !this.alertable() && !Hamster.this.isPassenger();
+                return ((Hamster.this.level().getDayTime() >= 1000 && Hamster.this.level().getDayTime() <= 10000) || (Hamster.this.level().getDayTime() >= 16000 && Hamster.this.level().getDayTime() <= 21000)) && !Hamster.this.isInPowderSnow && !this.alertable() && !Hamster.this.isPassenger();
             }
         }
 
