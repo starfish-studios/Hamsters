@@ -1,9 +1,6 @@
-# Fabric Example Mod
-
-## Setup
-
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
-
-## License
-
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+<p><a href="https://starfish-studios.com/" target="_blank" rel="noopener noreferrer"><img src="https://cdn.discordapp.com/attachments/1166084401235492997/1167716335564881971/jbtl-n6X.png?ex=654f2395&amp;is=653cae95&amp;hm=542ec67797003cb6cf43f3418de64abed5e3649d0ce2a3795932f2598731e22e&amp;" alt="Starfish Studios Banner Logo" width="1000px" /></a></p>
+<p><a href="https://starfish-studios.com/" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/-website-website?style=for-the-badge&amp;logo=riseup&amp;logoColor=FFFFFF&amp;labelColor=EB4224&amp;color=EB4224" alt="Static Badge" /> <img src="https://img.shields.io/twitter/follow/StarfishStudios?style=for-the-badge&amp;logo=twitter&amp;logoColor=FFFFFF&amp;labelColor=EB4224&amp;color=EB4224" alt="X (formerly Twitter) Follow" /></a> <img src="https://img.shields.io/discord/878598895788240936?style=for-the-badge&amp;logo=discord&amp;logoColor=FFFFFF&amp;labelColor=EB4224&amp;color=EB4224" alt="Discord" /></p>
+<p><img src="https://i.imgur.com/aG0PR64.png" alt="enter image description here" width="1000px" /></p>
+<p>Let's be honest, we all want hamsters in Minecraft. Who wouldn't? And that's exactly what this mod does!&nbsp;<strong>Hamsters&nbsp;</strong>adds hamsters and hamster wheels. Hamsters spawn in plains, sunflower fields, and meadows, and hamster wheel recipes are unlocked once you have obtained copper ingots. Now go, get your own little orb!</p>
+<p><img src="https://cdn.discordapp.com/attachments/958901807315312731/1167732275975303208/bar.png?ex=654f326e&amp;is=653cbd6e&amp;hm=f5118ba24a45c2b7b3db4e2520abb2e78687ae4447bbb4278aa3b74945e664ce&amp;" alt="enter image description here" width="1000px" /></p>
+<p><a href="https://bisecthosting.com/starfish-studios"><img src="https://www.bisecthosting.com/partners/custom-banners/111ff438-b2dd-4289-800f-fca5d0cc4826.webp" alt="enter image description here" width="1000px" /></a></p>
