@@ -1,6 +1,6 @@
 {
-  "replace": false,
-  "values": [
-    "hamsters:tunnel"
-  ]
+	"replace": false,
+	"values": [
+		{"id":"hamsters:tunnel", "required": false}
+	]
 }
