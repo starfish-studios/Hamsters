@@ -101,6 +101,16 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     }
 
     @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        return isOccupied(level, pos) ? 15 : 0;
+    }
+
+    @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
     }

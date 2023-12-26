@@ -1,0 +1,27 @@
+{
+  "itemGroup.hamsters.tab": "Hámsteres",
+  "item.hamsters.hamsters": "Hámsteres",
+
+  "entity.hamsters.hamster": "Hámster",
+  "item.hamsters.hamster": "Hámster",
+
+  "tooltip.hamsters.white": "Blanco",
+  "tooltip.hamsters.peaches_and_cream": "Melocotón y nata",
+  "tooltip.hamsters.orange": "Naranja",
+  "tooltip.hamsters.grey_white": "Gris y blanco",
+  "tooltip.hamsters.brown": "Marrón",
+  "tooltip.hamsters.black_white": "Blanco y negro",
+  "tooltip.hamsters.black": "Negro",
+
+  "tooltip.hamsters.tamed": "Domesticado",
+  "tooltip.hamsters.baby": "Bebé",
+
+  "item.hamsters.hamster_spawn_egg": "Generar hámster",
+  "block.hamsters.tunnel": "Túnel",
+  "block.hamsters.hamster_wheel": "Rueda de hámster",
+
+  "hamsters.subtitles.hamster.ambient": "Hámster chilla",
+  "hamsters.subtitles.hamster.hurt": "Hámster herido",
+  "hamsters.subtitles.hamster.death": "Hámster muere",
+  "hamsters.subtitles.hamster.beg": "Hámster suplica"
+}

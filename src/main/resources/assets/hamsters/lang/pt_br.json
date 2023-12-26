@@ -8,19 +8,19 @@
   "tooltip.hamsters.white": "Branco",
   "tooltip.hamsters.peaches_and_cream": "Pêssego e Creme",
   "tooltip.hamsters.orange": "Laranja",
-  "tooltip.hamsters.grey_white": "branco acinzentado",
+  "tooltip.hamsters.grey_white": "Cinzento e Branco",
   "tooltip.hamsters.brown": "Marrom",
   "tooltip.hamsters.black_white": "Preto e Branco",
   "tooltip.hamsters.black": "Preto",
 
-  "tooltip.hamsters.tamed": "Domado",
+  "tooltip.hamsters.tamed": "Domesticado",
   "tooltip.hamsters.baby": "Filhote",
 
   "item.hamsters.hamster_spawn_egg": "Ovo gerador de Hamster",
   "block.hamsters.tunnel": "Túnel",
   "block.hamsters.hamster_wheel": "Roda de hamster",
 
-  "hamsters.subtitles.hamster.ambient": "Hamster silvo",
+  "hamsters.subtitles.hamster.ambient": "Hamster guincha",
   "hamsters.subtitles.hamster.hurt": "Hamster ferido",
   "hamsters.subtitles.hamster.death": "Hamster morre",
   "hamsters.subtitles.hamster.beg": "Hamster implora"
