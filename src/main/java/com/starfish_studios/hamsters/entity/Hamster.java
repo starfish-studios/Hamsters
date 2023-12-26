@@ -373,7 +373,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
             this.setDeltaMovement(0, 0, 0);
         }
 
-        System.out.println(getWaitTimeWhenRunningTicks());
+        // System.out.println(getWaitTimeWhenRunningTicks());
 
         if (this.getWaitTimeWhenRunningTicks() > 0) {
             this.setWaitTimeWhenRunningTicks(this.getWaitTimeWhenRunningTicks() - 1);
