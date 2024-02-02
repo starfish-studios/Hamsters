@@ -129,7 +129,7 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return HamstersBlockEntities.HAMSTER_WHEEL.create(blockPos, blockState);
+        return HamstersBlockEntities.HAMSTER_WHEEL.get().create(blockPos, blockState);
     }
 
 

@@ -19,10 +19,8 @@ public class HamsterWheelBlockEntity extends BlockEntity implements GeoBlockEnti
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public HamsterWheelBlockEntity(BlockPos pos, BlockState state) {
-        super(HamstersBlockEntities.HAMSTER_WHEEL, pos, state);
+        super(HamstersBlockEntities.HAMSTER_WHEEL.get(), pos, state);
     }
-
-
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
