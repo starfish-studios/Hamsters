@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#hamsters:has_hamster",
+  "spawners": [
+    {
+      "type": "hamsters:hamster",
+      "weight": 30,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

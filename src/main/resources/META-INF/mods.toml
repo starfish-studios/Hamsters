@@ -1,0 +1,21 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+[[mods]]
+modId="hamsters"
+version="1.19.2"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''${mod_description}'''
+[[dependencies.hamsters]]
+   modId="forge"
+   mandatory=true
+   versionRange="${forge_version_range}"
+   ordering="NONE"
+   side="BOTH"
+[[dependencies.hamsters]]
+   modId="minecraft"
+   mandatory=true
+   versionRange="[1.19.2,)"
+   ordering="NONE"
+   side="BOTH"
