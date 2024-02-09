@@ -2,6 +2,7 @@
 	"required": true,
 	"package": "com.starfish_studios.hamsters.mixin",
 	"compatibilityLevel": "JAVA_17",
+	"refmap": "hamsters.refmap.json",
 	"mixins": [
 	],
 	"injectors": {

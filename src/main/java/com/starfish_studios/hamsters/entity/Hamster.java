@@ -231,7 +231,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     }
 
     public ItemStack getCaughtItemStack() {
-        return new ItemStack(HamstersItems.HAMSTER);
+        return new ItemStack(HamstersItems.HAMSTER.get());
     }
     // endregion
 
@@ -240,15 +240,15 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
 
     protected SoundEvent getAmbientSound() {
-        return HamstersSoundEvents.HAMSTER_AMBIENT;
+        return HamstersSoundEvents.HAMSTER_AMBIENT.get();
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSource) {
-        return HamstersSoundEvents.HAMSTER_HURT;
+        return HamstersSoundEvents.HAMSTER_HURT.get();
     }
 
     protected SoundEvent getDeathSound() {
-        return HamstersSoundEvents.HAMSTER_DEATH;
+        return HamstersSoundEvents.HAMSTER_DEATH.get();
     }
 
     protected void playStepSound(BlockPos blockPos, BlockState blockState) {
@@ -256,7 +256,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     }
 
     protected void playBegSound() {
-        this.playSound(HamstersSoundEvents.HAMSTER_BEG, this.getSoundVolume(), this.getVoicePitch());
+        this.playSound(HamstersSoundEvents.HAMSTER_BEG.get(), this.getSoundVolume(), this.getVoicePitch());
     }
 
     protected float getSoundVolume() {
@@ -369,7 +369,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         this.level();
 
         this.blockPosition();
-        if (this.level().getBlockState(this.blockPosition()).is(HamstersBlocks.HAMSTER_WHEEL)) {
+        if (this.level().getBlockState(this.blockPosition()).is(HamstersBlocks.HAMSTER_WHEEL.get())) {
             this.setDeltaMovement(0, 0, 0);
         }
 
@@ -485,7 +485,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
     @Nullable
     public Hamster getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob ageableMob) {
-        Hamster hamster = HamstersEntityType.HAMSTER.create(level);
+        Hamster hamster = HamstersEntityType.HAMSTER.get().create(level);
         if (hamster != null && ageableMob instanceof Hamster hamster1) {
             if (this.random.nextBoolean()) {
                 hamster.setVariant(this.getVariant());
@@ -628,7 +628,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
                 super.tick();
             } else {
                 BlockState state = Hamster.this.level().getBlockState(Hamster.this.blockPosition());
-                if (state.is(HamstersBlocks.HAMSTER_WHEEL)) {
+                if (state.is(HamstersBlocks.HAMSTER_WHEEL.get())) {
                     BlockPos pos1;
 
                     if (state.getValue(FACING) == Direction.SOUTH) {
@@ -659,7 +659,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
         HamsterGoToWheelGoal() {
             this.VALID_GATHERING_BLOCKS = blockState -> {
-                if (blockState.is(HamstersBlocks.HAMSTER_WHEEL)) {
+                if (blockState.is(HamstersBlocks.HAMSTER_WHEEL.get())) {
                     return !blockState.hasProperty(BlockStateProperties.WATERLOGGED) || !blockState.getValue(BlockStateProperties.WATERLOGGED);
                 }
                 return false;

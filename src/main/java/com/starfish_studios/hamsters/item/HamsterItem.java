@@ -31,7 +31,7 @@ public class HamsterItem extends Item {
         BlockPos pos = blockPlaceContext.getClickedPos();
         ItemStack stack = useOnContext.getItemInHand();
 
-        Hamster hamster = HamstersEntityType.HAMSTER.create(useOnContext.getLevel());
+        Hamster hamster = HamstersEntityType.HAMSTER.get().create(useOnContext.getLevel());
         if (stack.hasCustomHoverName()) hamster.setCustomName(stack.getHoverName());
 
         if (stack.hasTag()) hamster.load(stack.getTag());
