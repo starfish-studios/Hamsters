@@ -1,10 +1,6 @@
 package com.starfish_studios.hamsters;
 
-import com.starfish_studios.hamsters.registry.HamstersBlockEntities;
-import com.starfish_studios.hamsters.registry.HamstersBlocks;
-import com.starfish_studios.hamsters.registry.HamstersEntityType;
-import com.starfish_studios.hamsters.registry.HamstersItems;
-import com.starfish_studios.hamsters.registry.HamstersSoundEvents;
+import com.starfish_studios.hamsters.registry.*;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,7 +15,7 @@ import software.bernie.geckolib3.GeckoLib;
 public class Hamsters {
 	public static final String MOD_ID = "hamsters";
 
-	public static CreativeModeTab hamsterCreativeTab;
+	public static HamstersCreativeModeTab hamsterCreativeTab;
 
 	public Hamsters() {
 		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -36,16 +32,10 @@ public class Hamsters {
 		modEventBus.addListener(this::commonSetup);
 		eventBus.register(this);
 
-		hamsterCreativeTab = new CreativeModeTab(CreativeModeTab.getGroupCountSafe(), "hamsters") {
-			@Override
-			public ItemStack makeIcon() {
-				return new ItemStack(HamstersItems.HAMSTER_SPAWN_EGG.get());
-			}
-		};
+		hamsterCreativeTab = new HamstersCreativeModeTab("hamsters.tab");
 	}
 
 	private void commonSetup(final FMLCommonSetupEvent event) {
 		event.enqueueWork(HamstersVanillaIntegration::serverInit);
 	}
-
 }

@@ -1,23 +1,23 @@
-package com.starfish_studios.hamsters.client.model;
+package com.starfish_studios.hamsters.client.model.item;
 
 import com.starfish_studios.hamsters.Hamsters;
-import com.starfish_studios.hamsters.block.entity.HamsterWheelBlockEntity;
+import com.starfish_studios.hamsters.item.HamsterWheelItem;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
-public class HamsterWheelModel extends AnimatedGeoModel<HamsterWheelBlockEntity> {
+public class HamsterWheelItemModel extends AnimatedGeoModel<HamsterWheelItem> {
     @Override
-    public ResourceLocation getAnimationResource(HamsterWheelBlockEntity hamsterWheel) {
+    public ResourceLocation getAnimationResource(HamsterWheelItem hamsterWheel) {
         return new ResourceLocation(Hamsters.MOD_ID, "animations/hamster_wheel.animation.json");
     }
 
     @Override
-    public ResourceLocation getModelResource(HamsterWheelBlockEntity object) {
+    public ResourceLocation getModelResource(HamsterWheelItem object) {
         return new ResourceLocation(Hamsters.MOD_ID, "geo/block/hamster_wheel.geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(HamsterWheelBlockEntity object) {
+    public ResourceLocation getTextureResource(HamsterWheelItem object) {
         return new ResourceLocation(Hamsters.MOD_ID, "textures/block/hamster_wheel.png");
     }
 }

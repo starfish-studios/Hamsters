@@ -65,11 +65,20 @@ public class Hamster extends TamableAnimal implements IAnimatable {
     private static final EntityDataAccessor<Integer> EAT_COUNTER = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
 
     private static final Ingredient FOOD_ITEMS = Ingredient.of(HamstersTags.HAMSTER_FOOD);
+
+    public AnimationFactory factory = GeckoLibUtil.createFactory(this);
+
     private static final EntityDataAccessor<Boolean> DATA_INTERESTED = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> FROM_HAND = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> WAIT_TIME_BEFORE_RUN = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> WAIT_TIME_WHEN_RUNNING = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
+
+    protected static final AnimationBuilder IDLE = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.idle").loop("animation.sf_nba.hamster.idle");
+    protected static final AnimationBuilder WALK = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.walk").loop("animation.sf_nba.hamster.walk");
+    protected static final AnimationBuilder RUN = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.run").loop("animation.sf_nba.hamster.run");
+    protected static final AnimationBuilder SLEEP = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.sleep").loop("animation.sf_nba.hamster.sleep");
+    protected static final AnimationBuilder STANDING = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.standing").loop("animation.sf_nba.hamster.standing");
 
     Hamster.HamsterGoToWheelGoal hamsterGoToWheelGoal;
     // endregion
@@ -569,24 +578,24 @@ public class Hamster extends TamableAnimal implements IAnimatable {
 
 
     // region GECKOLIB
-    protected <E extends Hamster> PlayState animController(final AnimationEvent<E> event) {
+    protected <E extends IAnimatable> PlayState animController(final AnimationEvent<E> event) {
         if (this.isSleeping()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.sf_nba.hamster.sleep").loop("animation.sf_nba.hamster.sleep"));
+            event.getController().setAnimation(SLEEP);
         } else if (this.isInterested() || this.isInSittingPose()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.sf_nba.hamster.standing").loop("animation.sf_nba.hamster.standing"));
+            event.getController().setAnimation(STANDING);
         }  else if (event.isMoving()) {
             if (this.isSprinting()) {
                 event.getController().setAnimationSpeed(1.3F);
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.sf_nba.hamster.run").loop("animation.sf_nba.hamster.run"));
+                event.getController().setAnimation(RUN);
             } else {
                 event.getController().setAnimationSpeed(1.1F);
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.sf_nba.hamster.walk").loop("animation.sf_nba.hamster.walk"));
+                event.getController().setAnimation(WALK);
             }
-        }  else if (this.isPassenger() && this.getVehicle() instanceof SeatEntity ) {
+        }  else if (this.isPassenger() && this.getVehicle() instanceof SeatEntity) {
             event.getController().setAnimationSpeed(1.4F);
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.sf_nba.hamster.walk").loop("animation.sf_nba.hamster.walk"));
+            event.getController().setAnimation(WALK);
         } else {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.sf_nba.hamster.idle").loop("animation.sf_nba.hamster.idle"));
+            event.getController().setAnimation(IDLE);
         }
 
         return PlayState.CONTINUE;
@@ -599,7 +608,7 @@ public class Hamster extends TamableAnimal implements IAnimatable {
 
     @Override
     public AnimationFactory getFactory() {
-        return GeckoLibUtil.createFactory(this);
+        return factory;
     }
     // endregion
 
