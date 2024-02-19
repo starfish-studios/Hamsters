@@ -2,13 +2,16 @@ package com.starfish_studios.hamsters.client.renderer;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.starfish_studios.hamsters.client.model.HamsterModel;
 import com.starfish_studios.hamsters.entity.Hamster;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 
 import java.util.Map;
@@ -45,6 +48,11 @@ public class HamsterRenderer extends GeoEntityRenderer<Hamster> {
                 poseStack.scale(1F, 1F, 1F);
             }
         super.render(animatable, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+    }
+
+    @Override
+    public RenderType getRenderType(Hamster animatable, float partialTicks, PoseStack stack, @Nullable MultiBufferSource renderTypeBuffer, @Nullable VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
+        return RenderType.entityCutoutNoCull(textureLocation);
     }
 
 }
