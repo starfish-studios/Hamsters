@@ -195,6 +195,12 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     public InteractionResult catchHamster(Player player) {
         ItemStack output = this.getCaughtItemStack();
         saveDefaultDataToItemTag(this, output);
+        if (!player.getInventory().add(output)) {
+            ItemEntity itemEntity = new ItemEntity(level(), this.getX(), this.getY() + 0.5, this.getZ(), output);
+            itemEntity.setPickUpDelay(0);
+            itemEntity.setDeltaMovement(itemEntity.getDeltaMovement().multiply(0, 1, 0));
+            level().addFreshEntity(itemEntity);
+        }
         this.discard();
         player.getInventory().add(output);
         return InteractionResult.sidedSuccess(true);
