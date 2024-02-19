@@ -147,13 +147,11 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         } else {
             InteractionResult interactionResult;
             if (this.isTame()) {
-                if (this.isOwnedBy(player)) {
-                    if (this.getHealth() < this.getMaxHealth()) {
-                        this.usePlayerItem(player, interactionHand, itemStack);
-                        this.heal(2.0F);
-                        return InteractionResult.CONSUME;
-                    }
-
+                if (this.isOwnedBy(player) && this.isFood(itemStack) && (this.getHealth() < this.getMaxHealth())) {
+                    this.usePlayerItem(player, interactionHand, itemStack);
+                    this.heal(2.0F);
+                    return InteractionResult.CONSUME;
+                } else if (this.isOwnedBy(player)) {
                     interactionResult = super.mobInteract(player, interactionHand);
                     if (!interactionResult.consumesAction() || this.isBaby()) {
                         this.setOrderedToSit(!this.isOrderedToSit());
