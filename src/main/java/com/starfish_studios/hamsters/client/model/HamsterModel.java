@@ -1,19 +1,19 @@
 package com.starfish_studios.hamsters.client.model;
 
 import com.starfish_studios.hamsters.Hamsters;
-import com.starfish_studios.hamsters.block.entity.HamsterWheelBlockEntity;
 import com.starfish_studios.hamsters.entity.Hamster;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
+import net.minecraft.world.entity.AnimationState;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.processor.IBone;
+import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 import static com.starfish_studios.hamsters.Hamsters.MOD_ID;
 
-public class HamsterModel extends DefaultedEntityGeoModel<Hamster> {
-
-    public HamsterModel() {
-        super(new ResourceLocation(MOD_ID, "hamster"), true);
+public class HamsterModel extends AnimatedGeoModel<Hamster> {
+    @Override
+    public ResourceLocation getModelResource(Hamster object) {
+        return new ResourceLocation(MOD_ID, "geo/entity/hamster.geo.json");
     }
 
     @Override
@@ -27,13 +27,13 @@ public class HamsterModel extends DefaultedEntityGeoModel<Hamster> {
     }
 
     @Override
-    public void setCustomAnimations(Hamster animatable, long instanceId, AnimationState<Hamster> animationState) {
+    public void setCustomAnimations(Hamster animatable, int instanceId, AnimationEvent animationState) {
         super.setCustomAnimations(animatable, instanceId, animationState);
 
         if (animationState == null) return;
-        CoreGeoBone head = this.getAnimationProcessor().getBone("head");
-        CoreGeoBone sleep = this.getAnimationProcessor().getBone("sleep");
-        CoreGeoBone cheeks = this.getAnimationProcessor().getBone("cheeks");
+        IBone head = this.getAnimationProcessor().getBone("head");
+        IBone sleep = this.getAnimationProcessor().getBone("sleep");
+        IBone cheeks = this.getAnimationProcessor().getBone("cheeks");
 
         cheeks.setHidden(animatable.getMainHandItem().isEmpty());
 
@@ -51,7 +51,7 @@ public class HamsterModel extends DefaultedEntityGeoModel<Hamster> {
         } else {
             // Setting values to 1.0F here prevents conflicts with GeckoLib and optimization mods.
             // Without this, adult heads will also size up. It's a bug :(
-            head.setPosY(0F);
+            head.setPositionY(0F);
             head.setScaleX(1.0F);
             head.setScaleY(1.0F);
             head.setScaleZ(1.0F);

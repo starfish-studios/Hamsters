@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.vehicle.DismountHelper;
@@ -19,6 +20,11 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public class SeatEntity extends Entity {
+
+    public SeatEntity(EntityType<?> type, Level world) {
+        super(type, world);
+    }
+
     public SeatEntity(Level level) {
         super(HamstersEntityType.SEAT.get(), level);
         this.noPhysics = true;
@@ -31,9 +37,9 @@ public class SeatEntity extends Entity {
 
     @Override
     public void tick() {
-        if (this.level().isClientSide) return;
+        if (this.getLevel().isClientSide) return;
 
-        BlockState state = this.level().getBlockState(this.blockPosition());
+        BlockState state = this.getLevel().getBlockState(this.blockPosition());
         boolean canMount;
         if (state.getBlock() instanceof HamsterWheelBlock hamsterWheelBlock) canMount = hamsterWheelBlock.isMountable(state);
         else canMount = false;
@@ -41,7 +47,7 @@ public class SeatEntity extends Entity {
 
 
         this.discard();
-        this.level().updateNeighbourForOutputSignal(this.blockPosition(), this.level().getBlockState(this.blockPosition()).getBlock());
+        this.getLevel().updateNeighbourForOutputSignal(this.blockPosition(), this.getLevel().getBlockState(this.blockPosition()).getBlock());
     }
 
     @Override
@@ -58,7 +64,7 @@ public class SeatEntity extends Entity {
         List<Entity> passengers = this.getPassengers();
         if (passengers.isEmpty()) return 0.0;
         double seatHeight = 0.0;
-        BlockState state = level().getBlockState(this.blockPosition());
+        BlockState state = getLevel().getBlockState(this.blockPosition());
         if (state.getBlock() instanceof HamsterWheelBlock hamsterWheelBlock) seatHeight = hamsterWheelBlock.seatHeight(state);
 
         return seatHeight + getEntitySeatOffset(passengers.get(0));
@@ -83,16 +89,16 @@ public class SeatEntity extends Entity {
     public Vec3 getDismountLocationForPassenger(LivingEntity entity) {
         BlockPos pos = this.blockPosition();
         Vec3 safeVec;
-        BlockState state = this.level().getBlockState(pos);
+        BlockState state = this.getLevel().getBlockState(pos);
         if (state.getBlock() instanceof HamsterWheelBlock hamsterWheelBlock) {
-            safeVec = DismountHelper.findSafeDismountLocation(entity.getType(), this.level(), hamsterWheelBlock.primaryDismountLocation(this.level(), state, pos), false);
+            safeVec = DismountHelper.findSafeDismountLocation(entity.getType(), this.getLevel(), hamsterWheelBlock.primaryDismountLocation(this.getLevel(), state, pos), false);
             if (safeVec != null) return safeVec.add(0, 0.25, 0);
         }
 
         Direction original = this.getDirection();
         Direction[] offsets = {original, original.getClockWise(), original.getCounterClockWise(), original.getOpposite()};
         for(Direction dir : offsets) {
-            safeVec = DismountHelper.findSafeDismountLocation(entity.getType(), this.level(), pos.relative(dir), false);
+            safeVec = DismountHelper.findSafeDismountLocation(entity.getType(), this.getLevel(), pos.relative(dir), false);
             if (safeVec != null) return safeVec.add(0, 0.25, 0);
         }
         return super.getDismountLocationForPassenger(entity);
@@ -101,7 +107,7 @@ public class SeatEntity extends Entity {
     @Override
     protected void addPassenger(Entity passenger) {
         BlockPos pos = this.blockPosition();
-        BlockState state = this.level().getBlockState(pos);
+        BlockState state = this.getLevel().getBlockState(pos);
         if (state.getBlock() instanceof HamsterWheelBlock hamsterWheelBlock) passenger.setYRot(hamsterWheelBlock.setRiderRotation(state, passenger));
         super.addPassenger(passenger);
     }

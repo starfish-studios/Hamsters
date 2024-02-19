@@ -21,7 +21,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -44,42 +43,42 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
-import software.bernie.geckolib.util.GeckoLibUtil;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.*;
 import java.util.function.Predicate;
 
 import static com.starfish_studios.hamsters.block.HamsterWheelBlock.FACING;
-import static com.starfish_studios.hamsters.block.HamsterWheelBlock.ejectSeatedExceptPlayer;
 
-public class Hamster extends TamableAnimal implements GeoEntity {
+public class Hamster extends TamableAnimal implements IAnimatable {
     // region
-    protected static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.idle");
-    protected static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.walk");
-    protected static final RawAnimation RUN = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.run");
-    protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.sleep");
-    protected static final RawAnimation STANDING = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.standing");
-    private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
-
     private static final EntityDataAccessor<Integer> EAT_COUNTER = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
 
     private static final Ingredient FOOD_ITEMS = Ingredient.of(HamstersTags.HAMSTER_FOOD);
+
+    public AnimationFactory factory = GeckoLibUtil.createFactory(this);
+
     private static final EntityDataAccessor<Boolean> DATA_INTERESTED = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> FROM_HAND = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> WAIT_TIME_BEFORE_RUN = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> WAIT_TIME_WHEN_RUNNING = SynchedEntityData.defineId(Hamster.class, EntityDataSerializers.INT);
+
+    protected static final AnimationBuilder IDLE = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.idle").loop("animation.sf_nba.hamster.idle");
+    protected static final AnimationBuilder WALK = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.walk").loop("animation.sf_nba.hamster.walk");
+    protected static final AnimationBuilder RUN = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.run").loop("animation.sf_nba.hamster.run");
+    protected static final AnimationBuilder SLEEP = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.sleep").loop("animation.sf_nba.hamster.sleep");
+    protected static final AnimationBuilder STANDING = new AnimationBuilder().addAnimation("animation.sf_nba.hamster.standing").loop("animation.sf_nba.hamster.standing");
 
     Hamster.HamsterGoToWheelGoal hamsterGoToWheelGoal;
     // endregion
@@ -94,7 +93,6 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         this.setPathfindingMalus(BlockPathTypes.LAVA, 8.0F);
         this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 1.0F);
         this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, 1.0F);
-        this.setPathfindingMalus(BlockPathTypes.DAMAGE_CAUTIOUS, 1.0F);
         this.setPathfindingMalus((BlockPathTypes.DANGER_POWDER_SNOW), 1.0F);
         this.setPathfindingMalus((BlockPathTypes.DANGER_OTHER), 1.0F);
         this.setPathfindingMalus((BlockPathTypes.DAMAGE_OTHER), 1.0F);
@@ -138,7 +136,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     public InteractionResult mobInteract(Player player, InteractionHand interactionHand) {
 
         ItemStack itemStack = player.getItemInHand(interactionHand);
-        if (this.level().isClientSide) {
+        if (this.getLevel().isClientSide) {
             if (this.isTame() && this.isOwnedBy(player)) {
                 return InteractionResult.SUCCESS;
             } else {
@@ -168,9 +166,9 @@ public class Hamster extends TamableAnimal implements GeoEntity {
                 if (this.random.nextInt(3) == 0) {
                     this.tame(player);
                     this.setOrderedToSit(true);
-                    this.level().broadcastEntityEvent(this, (byte)7);
+                    this.getLevel().broadcastEntityEvent(this, (byte)7);
                 } else {
-                    this.level().broadcastEntityEvent(this, (byte)6);
+                    this.getLevel().broadcastEntityEvent(this, (byte)6);
                 }
 
                 this.setPersistenceRequired();
@@ -195,6 +193,12 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     public InteractionResult catchHamster(Player player) {
         ItemStack output = this.getCaughtItemStack();
         saveDefaultDataToItemTag(this, output);
+        if (!player.getInventory().add(output)) {
+            ItemEntity itemEntity = new ItemEntity(level, this.getX(), this.getY() + 0.5, this.getZ(), output);
+            itemEntity.setPickUpDelay(0);
+            itemEntity.setDeltaMovement(itemEntity.getDeltaMovement().multiply(0, 1, 0));
+            level.addFreshEntity(itemEntity);
+        }
         this.discard();
         player.getInventory().add(output);
         return InteractionResult.sidedSuccess(true);
@@ -231,8 +235,9 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     }
 
     public ItemStack getCaughtItemStack() {
-        return new ItemStack(HamstersItems.HAMSTER);
+        return new ItemStack(HamstersItems.HAMSTER.get());
     }
+
     // endregion
 
     // region SOUNDS
@@ -240,15 +245,15 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
 
     protected SoundEvent getAmbientSound() {
-        return HamstersSoundEvents.HAMSTER_AMBIENT;
+        return HamstersSoundEvents.HAMSTER_AMBIENT.get();
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSource) {
-        return HamstersSoundEvents.HAMSTER_HURT;
+        return HamstersSoundEvents.HAMSTER_HURT.get();
     }
 
     protected SoundEvent getDeathSound() {
-        return HamstersSoundEvents.HAMSTER_DEATH;
+        return HamstersSoundEvents.HAMSTER_DEATH.get();
     }
 
     protected void playStepSound(BlockPos blockPos, BlockState blockState) {
@@ -256,7 +261,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     }
 
     protected void playBegSound() {
-        this.playSound(HamstersSoundEvents.HAMSTER_BEG, this.getSoundVolume(), this.getVoicePitch());
+        this.playSound(HamstersSoundEvents.HAMSTER_BEG.get(), this.getSoundVolume(), this.getVoicePitch());
     }
 
     protected float getSoundVolume() {
@@ -352,7 +357,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     public void tick() {
         super.tick();
         if (this.isEffectiveAi()) {
-            if (this.isInWater() || this.getTarget() != null || this.level().isThundering()) {
+            if (this.isInWater() || this.getTarget() != null || this.getLevel().isThundering()) {
                 this.wakeUp();
             }
 
@@ -366,10 +371,10 @@ public class Hamster extends TamableAnimal implements GeoEntity {
     @Override
     public void aiStep() {
         super.aiStep();
-        this.level();
+        this.getLevel();
 
         this.blockPosition();
-        if (this.level().getBlockState(this.blockPosition()).is(HamstersBlocks.HAMSTER_WHEEL)) {
+        if (this.getLevel().getBlockState(this.blockPosition()).is(HamstersBlocks.HAMSTER_WHEEL.get())) {
             this.setDeltaMovement(0, 0, 0);
         }
 
@@ -391,7 +396,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         }
 
         if (this.isAlive() && !this.isInterested() && !this.isSleeping() && !this.isImmobile() && this.getTarget() == null) {
-            List<Player> list = this.level().getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(8.0D, 4.0D, 8.0D));
+            List<Player> list = this.getLevel().getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(8.0D, 4.0D, 8.0D));
             for (Player player : list) {
                 if (!player.isSpectator() && player.isHolding(FOOD_ITEMS) && distanceToSqr(player) < 2.0D) {
                     this.setIsInterested(true);
@@ -401,7 +406,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         }
 
         if (this.isInterested() && (this.getTarget() == null)) {
-            List<Player> list = this.level().getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(8.0D, 4.0D, 8.0D));
+            List<Player> list = this.getLevel().getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(8.0D, 4.0D, 8.0D));
             for (Player player : list) {
                 if (!player.isSpectator() && player.isHolding(FOOD_ITEMS) && distanceToSqr(player) > 2.0D) {
                     this.setIsInterested(false);
@@ -485,7 +490,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
     @Nullable
     public Hamster getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob ageableMob) {
-        Hamster hamster = HamstersEntityType.HAMSTER.create(level);
+        Hamster hamster = HamstersEntityType.HAMSTER.get().create(level);
         if (hamster != null && ageableMob instanceof Hamster hamster1) {
             if (this.random.nextBoolean()) {
                 hamster.setVariant(this.getVariant());
@@ -532,12 +537,12 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
     @Override
     public boolean hurt(DamageSource pSource, float pAmount) {
-        if (!this.getMainHandItem().isEmpty() && !this.level().isClientSide) {
-            ItemEntity itemEntity = new ItemEntity(this.level(), this.getX() + this.getLookAngle().x, this.getY() + 1.0D, this.getZ() + this.getLookAngle().z, this.getMainHandItem());
+        if (!this.getMainHandItem().isEmpty() && !this.getLevel().isClientSide) {
+            ItemEntity itemEntity = new ItemEntity(this.getLevel(), this.getX() + this.getLookAngle().x, this.getY() + 1.0D, this.getZ() + this.getLookAngle().z, this.getMainHandItem());
             itemEntity.setPickUpDelay(40);
             itemEntity.setThrower(this.getUUID());
             this.playSound(SoundEvents.FOX_SPIT, 1.0F, 1.0F);
-            this.level().addFreshEntity(itemEntity);
+            this.getLevel().addFreshEntity(itemEntity);
             this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
         }
         return super.hurt(pSource, pAmount);
@@ -580,40 +585,38 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
 
     // region GECKOLIB
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<>(this, "controller", 0, this::animController));
-    }
-
-    protected <E extends Hamster> PlayState animController(final AnimationState<E> event) {
+    protected <E extends IAnimatable> PlayState animController(final AnimationEvent<E> event) {
         if (this.isSleeping()) {
-            event.setAnimation(SLEEP);
+            event.getController().setAnimation(SLEEP);
         } else if (this.isInterested() || this.isInSittingPose()) {
-            event.setAnimation(STANDING);
+            event.getController().setAnimation(STANDING);
         }  else if (event.isMoving()) {
             if (this.isSprinting()) {
-                event.setControllerSpeed(1.3F);
-                event.setAnimation(RUN);
+                event.getController().setAnimationSpeed(1.3F);
+                event.getController().setAnimation(RUN);
             } else {
-                event.setControllerSpeed(1.1F);
-                event.setAnimation(WALK);
+                event.getController().setAnimationSpeed(1.1F);
+                event.getController().setAnimation(WALK);
             }
-        }  else if (this.isPassenger() && this.getVehicle() instanceof SeatEntity ) {
-            event.setControllerSpeed(1.4F);
-            event.setAnimation(WALK);
+        }  else if (this.isPassenger() && this.getVehicle() instanceof SeatEntity) {
+            event.getController().setAnimationSpeed(1.4F);
+            event.getController().setAnimation(WALK);
         } else {
-            event.setAnimation(IDLE);
+            event.getController().setAnimation(IDLE);
         }
 
         return PlayState.CONTINUE;
     }
 
     @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.geoCache;
+    public void registerControllers(AnimationData data) {
+        data.addAnimationController(new AnimationController(this, "controller", 0, this::animController));
     }
 
+    @Override
+    public AnimationFactory getFactory() {
+        return factory;
+    }
     // endregion
 
     // region GOALS
@@ -627,8 +630,8 @@ public class Hamster extends TamableAnimal implements GeoEntity {
             if (!(Hamster.this.getVehicle() instanceof SeatEntity)) {
                 super.tick();
             } else {
-                BlockState state = Hamster.this.level().getBlockState(Hamster.this.blockPosition());
-                if (state.is(HamstersBlocks.HAMSTER_WHEEL)) {
+                BlockState state = Hamster.this.getLevel().getBlockState(Hamster.this.blockPosition());
+                if (state.is(HamstersBlocks.HAMSTER_WHEEL.get())) {
                     BlockPos pos1;
 
                     if (state.getValue(FACING) == Direction.SOUTH) {
@@ -659,7 +662,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
         HamsterGoToWheelGoal() {
             this.VALID_GATHERING_BLOCKS = blockState -> {
-                if (blockState.is(HamstersBlocks.HAMSTER_WHEEL)) {
+                if (blockState.is(HamstersBlocks.HAMSTER_WHEEL.get())) {
                     return !blockState.hasProperty(BlockStateProperties.WATERLOGGED) || !blockState.getValue(BlockStateProperties.WATERLOGGED);
                 }
                 return false;
@@ -671,9 +674,9 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         public boolean canUse() {
 
             Optional<BlockPos> optional = this.findNearbyResource();
-            if (optional.isPresent() && !HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
+            if (optional.isPresent() && !HamsterWheelBlock.isOccupied(Hamster.this.getLevel(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
                 Hamster.this.navigation.moveTo((double) optional.get().getX() + 0.5, optional.get().getY(), (double) optional.get().getZ() + 0.5, 1.2f);
-                return !Hamster.this.level().isRaining() && !Hamster.this.isSleeping() && !Hamster.this.isInSittingPose();
+                return !Hamster.this.getLevel().isRaining() && !Hamster.this.isSleeping() && !Hamster.this.isInSittingPose();
             }
             return false;
         }
@@ -681,8 +684,8 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         @Override
         public boolean canContinueToUse() {
             Optional<BlockPos> optional = this.findNearbyResource();
-            if (optional.isPresent() && !HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
-                return !Hamster.this.level().isRaining() && !Hamster.this.isSleeping() && !Hamster.this.isInSittingPose();
+            if (optional.isPresent() && !HamsterWheelBlock.isOccupied(Hamster.this.getLevel(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
+                return !Hamster.this.getLevel().isRaining() && !Hamster.this.isSleeping() && !Hamster.this.isInSittingPose();
             }
             return false;
         }
@@ -701,11 +704,11 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         public void tick() {
             Optional<BlockPos> optional = this.findNearbyResource();
 
-            if (HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get())) {
+            if (HamsterWheelBlock.isOccupied(Hamster.this.getLevel(), optional.get())) {
                 stop();
             }
 
-            if (!HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
+            if (!HamsterWheelBlock.isOccupied(Hamster.this.getLevel(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
 
                 Vec3 vec3 = Vec3.atBottomCenterOf(optional.get());
                 if (vec3.distanceTo(Hamster.this.position()) > 1.4) {
@@ -718,7 +721,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
                 }
                 if (Hamster.this.position().distanceTo(this.wheelPos) <= 1.4) {
                     Hamster.this.setWaitTimeWhenRunningTicks(Hamster.this.random.nextInt(300) + 100);
-                    HamsterWheelBlock.sitDown(Hamster.this.level(), optional.get(), Hamster.this);
+                    HamsterWheelBlock.sitDown(Hamster.this.getLevel(), optional.get(), Hamster.this);
                     this.stop();
                 }
             }
@@ -746,7 +749,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
                         int l = k < j && k > -j ? j : 0;
                         while (l <= j) {
                             mutableBlockPos.setWithOffset(blockPos, k, i - 1, l);
-                            if (blockPos.closerThan(mutableBlockPos, 5.0) && predicate.test(Hamster.this.level().getBlockState(mutableBlockPos))) {
+                            if (blockPos.closerThan(mutableBlockPos, 5.0) && predicate.test(Hamster.this.getLevel().getBlockState(mutableBlockPos))) {
                                 return Optional.of(mutableBlockPos);
                             }
                             l = l > 0 ? -l : 1 - l;
@@ -805,7 +808,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
                 --this.countdown;
                 return false;
             } else {
-                return ((Hamster.this.level().getDayTime() >= 1000 && Hamster.this.level().getDayTime() <= 10000) || (Hamster.this.level().getDayTime() >= 16000 && Hamster.this.level().getDayTime() <= 21000)) && !Hamster.this.isInPowderSnow && !this.alertable() && !Hamster.this.isPassenger();
+                return ((Hamster.this.getLevel().getDayTime() >= 1000 && Hamster.this.getLevel().getDayTime() <= 10000) || (Hamster.this.getLevel().getDayTime() >= 16000 && Hamster.this.getLevel().getDayTime() <= 21000)) && !Hamster.this.isInPowderSnow && !this.alertable() && !Hamster.this.isPassenger();
             }
         }
 
@@ -825,7 +828,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
 
         protected boolean alertable() {
-            return !Hamster.this.level().getNearbyEntities(LivingEntity.class, this.alertableTargeting, Hamster.this, Hamster.this.getBoundingBox().inflate(12.0, 6.0, 12.0)).isEmpty();
+            return !Hamster.this.getLevel().getNearbyEntities(LivingEntity.class, this.alertableTargeting, Hamster.this, Hamster.this.getBoundingBox().inflate(12.0, 6.0, 12.0)).isEmpty();
         }
     }
 

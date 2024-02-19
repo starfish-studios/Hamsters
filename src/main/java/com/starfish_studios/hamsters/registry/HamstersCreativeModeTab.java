@@ -1,65 +1,60 @@
 package com.starfish_studios.hamsters.registry;
 
-import com.starfish_studios.hamsters.Hamsters;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import static com.starfish_studios.hamsters.registry.HamstersBlocks.HAMSTER_WHEEL;
-import static com.starfish_studios.hamsters.registry.HamstersItems.*;
+public class HamstersCreativeModeTab extends CreativeModeTab {
+    public HamstersCreativeModeTab(String label) {
+        super(label);
+    }
 
-public class HamstersCreativeModeTab {
+    @Override
+    public ItemStack makeIcon() {
+        return new ItemStack(HamstersItems.HAMSTER_SPAWN_EGG.get());
+    }
 
-    @SuppressWarnings("unused")
-    public static final CreativeModeTab ITEM_GROUP = register("item_group", FabricItemGroup.builder().icon(HAMSTER_SPAWN_EGG::getDefaultInstance).title(Component.translatable("itemGroup.hamsters.tab")).displayItems((featureFlagSet, output) -> {
-
-        // output.accept(TUNNEL);
-        output.accept(HamstersItems.HAMSTER_WHEEL);
-
-
-        output.accept(HAMSTER_SPAWN_EGG);
-
-        // TODO: Not very pretty right now. Maybe there's a better way to do this?
-
-        ItemStack item0 = new ItemStack(HAMSTER);
+    @Override
+    public void fillItemList(NonNullList<ItemStack> itemStacks) {
+        ItemStack item0 = new ItemStack(HamstersItems.HAMSTER.get());
         item0.getOrCreateTag().putInt("Variant", 0);
-        output.accept(item0);
+        itemStacks.add(item0);
 
-        ItemStack item1 = new ItemStack(HAMSTER);
+        ItemStack item1 = new ItemStack(HamstersItems.HAMSTER.get());
         item1.getOrCreateTag().putInt("Variant", 1);
-        output.accept(item1);
+        itemStacks.add(item1);
 
-        ItemStack item2 = new ItemStack(HAMSTER);
+        ItemStack item2 = new ItemStack(HamstersItems.HAMSTER.get());
         item2.getOrCreateTag().putInt("Variant", 2);
-        output.accept(item2);
+        itemStacks.add(item2);
 
-        ItemStack item3 = new ItemStack(HAMSTER);
+        ItemStack item3 = new ItemStack(HamstersItems.HAMSTER.get());
         item3.getOrCreateTag().putInt("Variant", 3);
-        output.accept(item3);
+        itemStacks.add(item3);
 
-        ItemStack item4 = new ItemStack(HAMSTER);
+        ItemStack item4 = new ItemStack(HamstersItems.HAMSTER.get());
         item4.getOrCreateTag().putInt("Variant", 4);
-        output.accept(item4);
+        itemStacks.add(item4);
 
-        ItemStack item5 = new ItemStack(HAMSTER);
+        ItemStack item5 = new ItemStack(HamstersItems.HAMSTER.get());
         item5.getOrCreateTag().putInt("Variant", 5);
-        output.accept(item5);
+        itemStacks.add(item5);
 
-        ItemStack item6 = new ItemStack(HAMSTER);
+        ItemStack item6 = new ItemStack(HamstersItems.HAMSTER.get());
         item6.getOrCreateTag().putInt("Variant", 6);
-        output.accept(item6);
+        itemStacks.add(item6);
 
-
-
-        }).build()
-    );
-
-    private static CreativeModeTab register(String id, CreativeModeTab tab) {
-        return Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(Hamsters.MOD_ID, id), tab);
+        super.fillItemList(itemStacks);
+        /*
+        for (Item item : ForgeRegistries.ITEMS) {
+            if (item != null) {
+                if (ForgeRegistries.ITEMS.getKey(item).getNamespace().equals("hamsters")) {
+                    item.fillItemCategory(this, itemStacks);
+                }
+            }
+        }
+         */
     }
 }

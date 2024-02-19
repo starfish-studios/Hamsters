@@ -71,7 +71,7 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     }
 
     public static Optional<Entity> getLeashed(Player player) {
-        List<Entity> entities = player.level().getEntities((Entity) null, player.getBoundingBox().inflate(10), e -> true);
+        List<Entity> entities = player.getLevel().getEntities((Entity) null, player.getBoundingBox().inflate(10), e -> true);
         for (Entity e : entities)
             if (e instanceof Mob mob && mob.getLeashHolder() == player && canBePickedUp(e)) return Optional.of(mob);
         return Optional.empty();
@@ -129,7 +129,7 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return HamstersBlockEntities.HAMSTER_WHEEL.create(blockPos, blockState);
+        return HamstersBlockEntities.HAMSTER_WHEEL.get().create(blockPos, blockState);
     }
 
 
