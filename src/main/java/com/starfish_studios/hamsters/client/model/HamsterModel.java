@@ -3,6 +3,7 @@ package com.starfish_studios.hamsters.client.model;
 import com.starfish_studios.hamsters.Hamsters;
 import com.starfish_studios.hamsters.block.entity.HamsterWheelBlockEntity;
 import com.starfish_studios.hamsters.entity.Hamster;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
 import software.bernie.geckolib.core.animation.AnimationState;
@@ -24,6 +25,11 @@ public class HamsterModel extends DefaultedEntityGeoModel<Hamster> {
     @Override
     public ResourceLocation getAnimationResource(Hamster animatable) {
         return new ResourceLocation(Hamsters.MOD_ID, "animations/hamster.animation.json");
+    }
+
+    @Override
+    public RenderType getRenderType(Hamster animatable, ResourceLocation texture) {
+        return RenderType.entityCutoutNoCull(texture);
     }
 
     @Override
