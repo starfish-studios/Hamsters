@@ -705,26 +705,30 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         public void tick() {
             Optional<BlockPos> optional = this.findNearbyResource();
 
-            if (HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get())) {
-                stop();
-            }
+            if (optional.isPresent()) {
 
-            if (!HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
+                if (HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get())) {
+                    stop();
+                }
 
-                Vec3 vec3 = Vec3.atBottomCenterOf(optional.get());
-                if (vec3.distanceTo(Hamster.this.position()) > 1.4) {
-                    wheelPos = vec3;
-                    this.setWantedPos();
-                    return;
+                if (!HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
+
+                    Vec3 vec3 = Vec3.atBottomCenterOf(optional.get());
+                    if (vec3.distanceTo(Hamster.this.position()) > 1.4) {
+                        wheelPos = vec3;
+                        this.setWantedPos();
+                        return;
+                    }
+                    if (wheelPos == null) {
+                        this.wheelPos = vec3;
+                    }
+                    if (Hamster.this.position().distanceTo(this.wheelPos) <= 1.4) {
+                        Hamster.this.setWaitTimeWhenRunningTicks(Hamster.this.random.nextInt(300) + 100);
+                        HamsterWheelBlock.sitDown(Hamster.this.level(), optional.get(), Hamster.this);
+                        this.stop();
+                    }
                 }
-                if (wheelPos == null) {
-                    this.wheelPos = vec3;
-                }
-                if (Hamster.this.position().distanceTo(this.wheelPos) <= 1.4) {
-                    Hamster.this.setWaitTimeWhenRunningTicks(Hamster.this.random.nextInt(300) + 100);
-                    HamsterWheelBlock.sitDown(Hamster.this.level(), optional.get(), Hamster.this);
-                    this.stop();
-                }
+
             }
 
         }
