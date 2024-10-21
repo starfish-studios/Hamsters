@@ -1,6 +1,7 @@
 package com.starfish_studios.hamsters.registry;
 
 import com.starfish_studios.hamsters.Hamsters;
+import com.starfish_studios.hamsters.block.entity.BottleBlockEntity;
 import com.starfish_studios.hamsters.block.entity.HamsterWheelBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.Registry;
@@ -18,4 +19,10 @@ public class HamstersBlockEntities {
                     .build(null)
             );
 
+    public static final BlockEntityType<BottleBlockEntity> BLUE_HAMSTER_BOTTLE = register("blue_hamster_bottle", FabricBlockEntityTypeBuilder.create(BottleBlockEntity::new, HamstersBlocks.BLUE_HAMSTER_BOTTLE).build(null));
+
+
+    public static <T extends BlockEntityType<?>> T register(String name, T blockEntityType) {
+        return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, new ResourceLocation(MOD_ID, name), blockEntityType);
+    }
 }

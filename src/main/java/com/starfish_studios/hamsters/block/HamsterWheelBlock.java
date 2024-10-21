@@ -1,8 +1,14 @@
 package com.starfish_studios.hamsters.block;
 
+import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
+import com.simibubi.create.content.kinetics.steamEngine.SteamEngineBlockEntity;
+import com.simibubi.create.foundation.block.IBE;
+import com.simibubi.create.foundation.utility.Couple;
+import com.starfish_studios.hamsters.block.entity.HamsterWheelBlockEntity;
 import com.starfish_studios.hamsters.entity.Hamster;
 import com.starfish_studios.hamsters.entity.SeatEntity;
 import com.starfish_studios.hamsters.registry.HamstersBlockEntities;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -20,6 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -28,12 +35,14 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.List;
 import java.util.Optional;
 
-public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
+public class HamsterWheelBlock extends DirectionalKineticBlock implements IBE<HamsterWheelBlockEntity>{
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
 
     public HamsterWheelBlock(Properties properties) {
@@ -101,17 +110,17 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     }
 
     @Override
-    public boolean hasAnalogOutputSignal(BlockState state) {
+    public boolean hasAnalogOutputSignal(@NotNull BlockState state) {
         return true;
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    public int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         return isOccupied(level, pos) ? 15 : 0;
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState state) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
@@ -126,6 +135,16 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
+    @Override
+    public Class<HamsterWheelBlockEntity> getBlockEntityClass() {
+        return HamsterWheelBlockEntity.class;
+    }
+
+    @Override
+    public BlockEntityType<? extends HamsterWheelBlockEntity> getBlockEntityType() {
+        return HamstersBlockEntities.HAMSTER_WHEEL;
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
@@ -134,15 +153,13 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
 
 
     @Override
-    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+    public @NotNull InteractionResult use(@NotNull BlockState blockState, @NotNull Level level, @NotNull BlockPos blockPos, Player player, @NotNull InteractionHand interactionHand, @NotNull BlockHitResult blockHitResult) {
         if (player.getItemInHand(interactionHand).isEmpty() || (!player.getItemInHand(interactionHand).isEmpty() && !player.isShiftKeyDown())) {
             if (!level.mayInteract(player, blockPos)) return InteractionResult.PASS;
 
             if (!isMountable(blockState) || player.isPassenger() || player.isCrouching()) return InteractionResult.PASS;
 
             if (isOccupied(level, blockPos)) {
-
-
                 List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(blockPos));
 
                 if (seats.get(0).getFirstPassenger() instanceof Hamster hamster) {
@@ -154,7 +171,6 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
                 return InteractionResult.PASS;
             }
             if (getLeashed(player).isPresent() && getLeashed(player).get() instanceof Hamster hamster) {
-                hamster.setWaitTimeBeforeRunTicks(0);
                 sitDown(level, blockPos, hamster);
             }
             return InteractionResult.SUCCESS;
@@ -163,7 +179,7 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+    public @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter world, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case SOUTH -> SOUTH;
             case EAST -> EAST;
@@ -173,7 +189,24 @@ public class HamsterWheelBlock extends BaseEntityBlock implements EntityBlock {
     }
 
     @Override
-    public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+    public boolean canSurvive(@NotNull BlockState state, LevelReader world, BlockPos pos) {
         return world.getBlockState(pos.below()).isFaceSturdy(world, pos.below(), net.minecraft.core.Direction.UP);
     }
+
+    @Override
+    public boolean hasShaftTowards(LevelReader world, BlockPos pos, BlockState state, Direction face) {
+        return face == state.getValue(FACING).getOpposite();
+    }
+
+    @Override
+    public Direction.Axis getRotationAxis(BlockState state) {
+        return state.getValue(FACING).getAxis();
+    }
+
+    @Override
+    public boolean showCapacityWithAnnotation() {
+        return true;
+    }
+
+
 }

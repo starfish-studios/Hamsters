@@ -18,11 +18,15 @@ public class HamstersCreativeModeTab {
     @SuppressWarnings("unused")
     public static final CreativeModeTab ITEM_GROUP = register("item_group", FabricItemGroup.builder().icon(HAMSTER_SPAWN_EGG::getDefaultInstance).title(Component.translatable("itemGroup.hamsters.tab")).displayItems((featureFlagSet, output) -> {
 
-        // output.accept(TUNNEL);
+        output.accept(TUNNEL);
         output.accept(HamstersItems.HAMSTER_WHEEL);
+        output.accept(HamstersItems.BLUE_HAMSTER_BOWL);
+        output.accept(HamstersItems.BLUE_HAMSTER_BOTTLE);
+        output.accept(HamstersItems.HAMSTER_BALL);
 
 
         output.accept(HAMSTER_SPAWN_EGG);
+        output.accept(HAMSTER_NEW_SPAWN_EGG);
 
         // TODO: Not very pretty right now. Maybe there's a better way to do this?
 

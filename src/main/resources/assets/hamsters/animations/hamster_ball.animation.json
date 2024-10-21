@@ -1,0 +1,84 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.sf_nba.hamster_ball.roll": {
+			"loop": true,
+			"animation_length": 0.9,
+			"bones": {
+				"root": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.05": {
+							"vector": [20, 0, 0]
+						},
+						"0.1": {
+							"vector": [40, 0, 0]
+						},
+						"0.15": {
+							"vector": [60, 0, 0]
+						},
+						"0.2": {
+							"vector": [80, 0, 0]
+						},
+						"0.25": {
+							"vector": [100, 0, 0]
+						},
+						"0.3": {
+							"vector": [120, 0, 0]
+						},
+						"0.35": {
+							"vector": [140, 0, 0]
+						},
+						"0.4": {
+							"vector": [160, 0, 0]
+						},
+						"0.45": {
+							"vector": [180, 0, 0]
+						},
+						"0.5": {
+							"vector": [200, 0, 0]
+						},
+						"0.55": {
+							"vector": [220, 0, 0]
+						},
+						"0.6": {
+							"vector": [240, 0, 0]
+						},
+						"0.65": {
+							"vector": [260, 0, 0]
+						},
+						"0.7": {
+							"vector": [280, 0, 0]
+						},
+						"0.75": {
+							"vector": [300, 0, 0]
+						},
+						"0.8": {
+							"vector": [320, 0, 0]
+						},
+						"0.85": {
+							"vector": [340, 0, 0]
+						},
+						"0.9": {
+							"vector": [360, 0, 0]
+						}
+					}
+				}
+			}
+		},
+		"animation.sf_nba.hamster_ball.roll2": {
+			"loop": true,
+			"animation_length": 0.9,
+			"bones": {
+				"root": {
+					"rotation": {
+						"vector": ["q.anim_time * 400", 0, 0]
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

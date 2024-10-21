@@ -3,6 +3,7 @@ package com.starfish_studios.hamsters;
 import com.google.common.reflect.Reflection;
 import com.starfish_studios.hamsters.registry.*;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 
 
 public class Hamsters implements ModInitializer {
@@ -10,6 +11,8 @@ public class Hamsters implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		FabricLoader.getInstance().getModContainer("create"	).ifPresent(modContainer -> CreateCompat.setup());
+
 		Reflection.initialize(
 				HamstersCreativeModeTab.class,
 				HamstersSoundEvents.class,

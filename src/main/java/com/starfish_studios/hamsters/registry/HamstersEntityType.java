@@ -27,6 +27,27 @@ public class HamstersEntityType {
                     .trackRangeChunks(10)
     );
 
+    public static final EntityType<HamsterNew> HAMSTER_NEW = register(
+            "hamster_new",
+            FabricEntityTypeBuilder.createMob()
+                    .entityFactory(HamsterNew::new)
+                    .defaultAttributes(HamsterNew::createAttributes)
+                    .spawnGroup(MobCategory.CREATURE)
+                    .spawnRestriction(SpawnPlacements.Type.ON_GROUND, Heightmap.Types.WORLD_SURFACE_WG, Animal::checkAnimalSpawnRules)
+                    .dimensions(EntityDimensions.scalable(0.5F, 0.5F))
+                    .trackRangeChunks(10)
+    );
+
+    public static final EntityType<HamsterBall> HAMSTER_BALL = register(
+            "hamster_ball",
+            FabricEntityTypeBuilder.createLiving()
+                    .entityFactory(HamsterBall::new)
+                    .defaultAttributes(HamsterBall::createAttributes)
+                    .spawnGroup(MobCategory.MISC)
+                    .dimensions(EntityDimensions.scalable(1.0F, 1.0F))
+                    .trackRangeChunks(10)
+    );
+
     public static final Supplier<EntityType<SeatEntity>> SEAT = registerEntityType("seat", (type, world) -> new SeatEntity(world), MobCategory.MISC, 0.0F, 0.0F);
 
     static {

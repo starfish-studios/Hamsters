@@ -6,7 +6,7 @@
 				"identifier": "geometry.sf_nba.hamster",
 				"texture_width": 32,
 				"texture_height": 32,
-				"visible_bounds_width": 2,
+				"visible_bounds_width": 3,
 				"visible_bounds_height": 2.5,
 				"visible_bounds_offset": [0, 0.75, 0]
 			},
@@ -32,19 +32,16 @@
 					"name": "head",
 					"parent": "headRot",
 					"pivot": [-0.5, 3.5, 0],
-					"cubes": [
-						{"origin": [-2.5, 2, -4], "size": [5, 4, 4], "uv": [1, 11]}
-					],
 					"locators": {
 						"lead": [0, 3, -1]
 					}
 				},
 				{
-					"name": "sleep",
+					"name": "armorBipedHead",
 					"parent": "head",
-					"pivot": [0, 1, 0],
+					"pivot": [0, 2, -2],
 					"cubes": [
-						{"origin": [-2.5, 4, -4], "size": [5, 1, 0], "inflate": 0.01, "uv": [5, 22]}
+						{"origin": [-2.5, 2, -4], "size": [5, 4, 4], "uv": [1, 11]}
 					]
 				},
 				{
@@ -52,7 +49,7 @@
 					"parent": "head",
 					"pivot": [-1.5, 5, -2],
 					"cubes": [
-						{"origin": [-3.5, 5, -2], "size": [2, 2, 0], "uv": [0, 11], "mirror": true}
+						{"origin": [-3.5, 5, -2], "size": [2, 2, 0], "inflate": 0.01, "uv": [0, 11], "mirror": true}
 					]
 				},
 				{
@@ -60,7 +57,7 @@
 					"parent": "head",
 					"pivot": [1.5, 5, -2],
 					"cubes": [
-						{"origin": [1.5, 5, -2], "size": [2, 2, 0], "uv": [0, 11]}
+						{"origin": [1.5, 5, -2], "size": [2, 2, 0], "inflate": 0.01, "uv": [0, 11]}
 					]
 				},
 				{
@@ -70,6 +67,14 @@
 					"cubes": [
 						{"origin": [2.5, 2, -4], "size": [2, 3, 3], "uv": [20, 13]},
 						{"origin": [-4.5, 2, -4], "size": [2, 3, 3], "uv": [20, 13], "mirror": true}
+					]
+				},
+				{
+					"name": "sleep",
+					"parent": "head",
+					"pivot": [0, 1, 0],
+					"cubes": [
+						{"origin": [-2.5, 4, -4.025], "size": [5, 1, 0], "inflate": 0.01, "uv": [5, 22]}
 					]
 				},
 				{

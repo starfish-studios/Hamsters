@@ -35,10 +35,17 @@ public class HamstersVanillaIntegration {
 
         private static void registerModelLayers() {
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER, HamsterRenderer::new);
+            EntityRendererRegistry.register(HamstersEntityType.HAMSTER_NEW, HamsterNewRenderer::new);
+            EntityRendererRegistry.register(HamstersEntityType.HAMSTER_BALL, HamsterBallRenderer::new);
         }
 
         private static void registerBlockRenderLayers() {
             // BlockRenderLayerMap.INSTANCE.putBlock(HamstersBlocks.TUNNEL, RenderType.translucent());
+            BlockRenderLayerMap.INSTANCE.putBlock(
+
+                    HamstersBlocks.BLUE_HAMSTER_BOWL,
+
+            RenderType.cutout());
         }
     }
 

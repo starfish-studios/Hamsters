@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.2-SNAPSHOT'
+	id 'fabric-loom' version '1.7-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -8,12 +8,19 @@ group = project.maven_group
 
 repositories {
 	maven {
-		url "https://maven.terraformersmc.com/"
-	}
-	maven {
 		name = 'GeckoLib'
 		url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
 	}
+
+
+	maven { url = "https://maven.tterrag.com/" }
+	maven { url = "https://api.modrinth.com/maven" } // Modrinth
+	maven { url = "https://maven.terraformersmc.com/releases/" } // Mod Menu
+	maven { url = "https://mvn.devos.one/snapshots/" } // Create Fabric, Porting Lib, Forge Tags, Milk Lib, Registrate Fabric
+	maven { url = "https://cursemaven.com" } // Forge Config API Port
+	maven { url = "https://maven.cafeteria.dev/releases" } // Fake Player API
+	maven { url = "https://maven.jamieswhiteshirt.com/libs-release" } // Reach Entity Attributes
+	maven { url = "https://jitpack.io/" } // Mixin Extras, Fabric ASM
 	// Add repositories to retrieve artifacts from in here.
 	// You should only use this when depending on other mods because
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
@@ -32,6 +39,10 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation ("software.bernie.geckolib:geckolib-fabric-1.20.1:${project.geckolib_version}")
 	modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
+
+
+	modImplementation("com.simibubi.create:create-fabric-${minecraft_version}:${fabric_create_version}") // Create Fabric
+
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
