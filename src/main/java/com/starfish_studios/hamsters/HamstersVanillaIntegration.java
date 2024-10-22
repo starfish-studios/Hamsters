@@ -38,7 +38,6 @@ public class HamstersVanillaIntegration {
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER, HamsterRenderer::new);
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER_NEW, HamsterNewRenderer::new);
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER_BALL, HamsterBallRenderer::new);
-            EntityRendererRegistry.register(HamstersEntityType.FRANK, FrankRenderer::new);
         }
 
         private static void registerBlockRenderLayers() {
