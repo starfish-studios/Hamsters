@@ -1,0 +1,6 @@
+{
+    "parent": "hamsters:block/template/bottle",
+    "textures": {
+        "all": "hamsters:block/bottle/orange"
+    }
+}

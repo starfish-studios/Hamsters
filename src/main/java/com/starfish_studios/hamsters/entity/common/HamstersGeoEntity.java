@@ -6,7 +6,7 @@ public interface HamstersGeoEntity extends GeoEntity {
 
     @Override
     default double getBoneResetTime() {
-        return 0;
+        return 5;
     }
 
 

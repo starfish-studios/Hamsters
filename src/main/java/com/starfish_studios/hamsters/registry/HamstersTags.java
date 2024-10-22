@@ -14,6 +14,8 @@ import static com.starfish_studios.hamsters.Hamsters.MOD_ID;
 
 public interface HamstersTags {
 
+    TagKey<Item> CAGE_PANELS = TagKey.create(Registries.ITEM, new ResourceLocation(MOD_ID, "cage_panels"));
+
     TagKey<Block> HAMSTER_WHEELS = TagKey.create(Registries.BLOCK, new ResourceLocation(MOD_ID, "hamster_wheels"));
 
     TagKey<Block> HAMSTER_BLOCKS = TagKey.create(Registries.BLOCK, new ResourceLocation(MOD_ID, "hamster_blocks"));

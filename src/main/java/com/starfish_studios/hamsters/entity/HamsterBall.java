@@ -155,7 +155,7 @@ public class HamsterBall extends PathfinderMob implements HamstersGeoEntity {
 
     @Override
     public ItemStack getPickResult() {
-        return new ItemStack(HamstersItems.HAMSTER_BALL);
+        return new ItemStack(HamstersItems.BLUE_HAMSTER_BALL);
     }
 
 

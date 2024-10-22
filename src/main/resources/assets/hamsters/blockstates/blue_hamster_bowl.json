@@ -1,33 +1,33 @@
 {
-  "multipart": [
-    {
-      "apply": {
-        "model": "hamsters:block/bowl/blue"
-      }
-    },
-    {
-      "apply": {
-        "model": "hamsters:block/template/seeds_1"
-      },
-      "when": {
-        "seeds": 1
-      }
-    },
-    {
-      "apply": {
-        "model": "hamsters:block/template/seeds_2"
-      },
-      "when": {
-        "seeds": 2
-      }
-    },
-    {
-      "apply": {
-        "model": "hamsters:block/template/seeds_3"
-      },
-      "when": {
-        "seeds": 3
-      }
-    }
-  ]
+    "multipart": [
+        {
+            "apply": {
+                "model": "hamsters:block/bowl/blue"
+            }
+        },
+        {
+            "apply": {
+                "model": "hamsters:block/template/seeds_1"
+            },
+            "when": {
+                "seeds": 1
+            }
+        },
+        {
+            "apply": {
+                "model": "hamsters:block/template/seeds_2"
+            },
+            "when": {
+                "seeds": 2
+            }
+        },
+        {
+            "apply": {
+                "model": "hamsters:block/template/seeds_3"
+            },
+            "when": {
+                "seeds": 3
+            }
+        }
+    ]
 }

@@ -1,6 +1,6 @@
 {
-  "parent": "hamsters:block/template/bottle",
-  "textures": {
-    "bowl": "hamsters:block/bottle/blue"
-  }
+    "parent": "hamsters:block/template/bottle",
+    "textures": {
+        "all": "hamsters:block/bottle/blue"
+    }
 }

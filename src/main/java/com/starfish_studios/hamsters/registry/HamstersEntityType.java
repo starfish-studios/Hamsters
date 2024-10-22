@@ -27,6 +27,16 @@ public class HamstersEntityType {
                     .trackRangeChunks(10)
     );
 
+    public static final EntityType<Frank> FRANK = register(
+            "frank",
+            FabricEntityTypeBuilder.createMob()
+                    .entityFactory(Frank::new)
+                    .defaultAttributes(Frank::createAttributes)
+                    .spawnGroup(MobCategory.MONSTER)
+                    .dimensions(EntityDimensions.scalable(2.0F, 2.5F))
+                    .trackRangeChunks(10)
+    );
+
     public static final EntityType<HamsterNew> HAMSTER_NEW = register(
             "hamster_new",
             FabricEntityTypeBuilder.createMob()

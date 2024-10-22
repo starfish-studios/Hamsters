@@ -1,0 +1,7 @@
+{
+    "parent": "hamsters:block/template/cage_panel",
+    "textures": {
+        "all": "hamsters:block/cage/gray",
+        "particle": "hamsters:block/cage/gray_middle"
+    }
+}

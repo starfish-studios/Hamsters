@@ -1,5 +1,6 @@
 package com.starfish_studios.hamsters;
 
+import com.starfish_studios.hamsters.block.CagePanelBlock;
 import com.starfish_studios.hamsters.client.renderer.*;
 import com.starfish_studios.hamsters.registry.HamstersBlocks;
 import com.starfish_studios.hamsters.registry.HamstersEntityType;
@@ -37,15 +38,45 @@ public class HamstersVanillaIntegration {
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER, HamsterRenderer::new);
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER_NEW, HamsterNewRenderer::new);
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER_BALL, HamsterBallRenderer::new);
+            EntityRendererRegistry.register(HamstersEntityType.FRANK, FrankRenderer::new);
         }
 
         private static void registerBlockRenderLayers() {
-            // BlockRenderLayerMap.INSTANCE.putBlock(HamstersBlocks.TUNNEL, RenderType.translucent());
-            BlockRenderLayerMap.INSTANCE.putBlock(
-
+            BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(),
+                    HamstersBlocks.CAGE_PANEL,
+                    HamstersBlocks.RED_CAGE_PANEL,
+                    HamstersBlocks.ORANGE_CAGE_PANEL,
+                    HamstersBlocks.YELLOW_CAGE_PANEL,
+                    HamstersBlocks.LIME_CAGE_PANEL,
+                    HamstersBlocks.GREEN_CAGE_PANEL,
+                    HamstersBlocks.CYAN_CAGE_PANEL,
+                    HamstersBlocks.BLUE_CAGE_PANEL,
+                    HamstersBlocks.LIGHT_BLUE_CAGE_PANEL,
+                    HamstersBlocks.PINK_CAGE_PANEL,
+                    HamstersBlocks.MAGENTA_CAGE_PANEL,
+                    HamstersBlocks.PURPLE_CAGE_PANEL,
+                    HamstersBlocks.WHITE_CAGE_PANEL,
+                    HamstersBlocks.LIGHT_GRAY_CAGE_PANEL,
+                    HamstersBlocks.GRAY_CAGE_PANEL,
+                    HamstersBlocks.BLACK_CAGE_PANEL,
+                    HamstersBlocks.BROWN_CAGE_PANEL,
+                    HamstersBlocks.RED_HAMSTER_BOWL,
+                    HamstersBlocks.ORANGE_HAMSTER_BOWL,
+                    HamstersBlocks.YELLOW_HAMSTER_BOWL,
+                    HamstersBlocks.LIME_HAMSTER_BOWL,
+                    HamstersBlocks.GREEN_HAMSTER_BOWL,
+                    HamstersBlocks.CYAN_HAMSTER_BOWL,
                     HamstersBlocks.BLUE_HAMSTER_BOWL,
-
-            RenderType.cutout());
+                    HamstersBlocks.LIGHT_BLUE_HAMSTER_BOWL,
+                    HamstersBlocks.PINK_HAMSTER_BOWL,
+                    HamstersBlocks.MAGENTA_HAMSTER_BOWL,
+                    HamstersBlocks.PURPLE_HAMSTER_BOWL,
+                    HamstersBlocks.WHITE_HAMSTER_BOWL,
+                    HamstersBlocks.LIGHT_GRAY_HAMSTER_BOWL,
+                    HamstersBlocks.GRAY_HAMSTER_BOWL,
+                    HamstersBlocks.BLACK_HAMSTER_BOWL,
+                    HamstersBlocks.BROWN_HAMSTER_BOWL
+            );
         }
     }
 

@@ -1,5 +1,5 @@
 {
-  "variants": {
+    "variants": {
         "facing=north": {
             "model": "hamsters:block/bottle/blue"
         },
@@ -15,5 +15,5 @@
             "model": "hamsters:block/bottle/blue",
             "y": 270
         }
-  }
+    }
 }

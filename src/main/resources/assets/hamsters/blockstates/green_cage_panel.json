@@ -1,0 +1,64 @@
+{
+    "variants": {
+        "facing=north,type=none": {
+            "model": "hamsters:block/cage_panel/green"
+        },
+        "facing=north,type=top": {
+            "model": "hamsters:block/cage_panel/green_top"
+        },
+        "facing=north,type=middle": {
+            "model": "hamsters:block/cage_panel/green_middle"
+        },
+        "facing=north,type=bottom": {
+            "model": "hamsters:block/cage_panel/green_bottom"
+        },
+        "facing=east,type=none": {
+            "model": "hamsters:block/cage_panel/green",
+            "y": 90
+        },
+        "facing=east,type=top": {
+            "model": "hamsters:block/cage_panel/green_top",
+            "y": 90
+        },
+        "facing=east,type=middle": {
+            "model": "hamsters:block/cage_panel/green_middle",
+            "y": 90
+        },
+        "facing=east,type=bottom": {
+            "model": "hamsters:block/cage_panel/green_bottom",
+            "y": 90
+        },
+        "facing=south,type=none": {
+            "model": "hamsters:block/cage_panel/green",
+            "y": 180
+        },
+        "facing=south,type=top": {
+            "model": "hamsters:block/cage_panel/green_top",
+            "y": 180
+        },
+        "facing=south,type=middle": {
+            "model": "hamsters:block/cage_panel/green_middle",
+            "y": 180
+        },
+        "facing=south,type=bottom": {
+            "model": "hamsters:block/cage_panel/green_bottom",
+            "y": 180
+        },
+        "facing=west,type=none": {
+            "model": "hamsters:block/cage_panel/green",
+            "y": 270
+        },
+        "facing=west,type=top": {
+            "model": "hamsters:block/cage_panel/green_top",
+            "y": 270
+        },
+        "facing=west,type=middle": {
+            "model": "hamsters:block/cage_panel/green_middle",
+            "y": 270
+        },
+        "facing=west,type=bottom": {
+            "model": "hamsters:block/cage_panel/green_bottom",
+            "y": 270
+        }
+    }
+}

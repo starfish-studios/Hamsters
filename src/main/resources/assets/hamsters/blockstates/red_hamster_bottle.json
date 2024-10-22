@@ -1,0 +1,19 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "hamsters:block/bottle/red"
+        },
+        "facing=east": {
+            "model": "hamsters:block/bottle/red",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "hamsters:block/bottle/red",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "hamsters:block/bottle/red",
+            "y": 270
+        }
+    }
+}
