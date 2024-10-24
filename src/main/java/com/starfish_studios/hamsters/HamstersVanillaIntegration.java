@@ -1,21 +1,25 @@
 package com.starfish_studios.hamsters;
 
-import com.starfish_studios.hamsters.block.CagePanelBlock;
+import com.starfish_studios.hamsters.client.model.shoulder.LeftSittingHamsterModel;
 import com.starfish_studios.hamsters.client.renderer.*;
 import com.starfish_studios.hamsters.registry.HamstersBlocks;
 import com.starfish_studios.hamsters.registry.HamstersEntityType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.function.Supplier;
 
 public class HamstersVanillaIntegration {
+    public static final ModelLayerLocation HAMSTER_LAYER = new ModelLayerLocation(new ResourceLocation(Hamsters.MOD_ID, "sitting_hamster"), "main");
 
 
     public static void serverInit() {
@@ -38,6 +42,8 @@ public class HamstersVanillaIntegration {
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER, HamsterRenderer::new);
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER_NEW, HamsterNewRenderer::new);
             EntityRendererRegistry.register(HamstersEntityType.HAMSTER_BALL, HamsterBallRenderer::new);
+
+            EntityModelLayerRegistry.registerModelLayer(HAMSTER_LAYER, LeftSittingHamsterModel::createBodyLayer);
         }
 
         private static void registerBlockRenderLayers() {

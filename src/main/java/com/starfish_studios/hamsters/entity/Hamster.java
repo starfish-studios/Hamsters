@@ -402,6 +402,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
     }
 
+
     public enum Variant {
         WHITE (0, "white"),
         CREAM (1, "cream"),

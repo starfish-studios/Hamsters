@@ -20,7 +20,8 @@
 					"parent": "root",
 					"pivot": [0, 1.5, 3],
 					"cubes": [
-						{"origin": [-3, 0.5, -2], "size": [6, 4, 6], "inflate": 0.01, "uv": [0, 0]}
+						{"origin": [-3, 0.5, -2], "size": [6, 4, 6], "inflate": 0.01, "uv": [0, 0]},
+						{"origin": [-4, 0.5, 2], "size": [8, 5, 0], "inflate": 0.01, "uv": [2, 26]}
 					]
 				},
 				{
@@ -41,7 +42,8 @@
 					"parent": "head",
 					"pivot": [0, 2, -2],
 					"cubes": [
-						{"origin": [-2.5, 2, -4], "size": [5, 4, 4], "uv": [1, 11]}
+						{"origin": [-2.5, 2, -4], "size": [5, 4, 4], "uv": [1, 11]},
+						{"origin": [0, 5, -5], "size": [0, 4, 4], "uv": [23, 16]}
 					]
 				},
 				{
@@ -63,9 +65,21 @@
 				{
 					"name": "cheeks",
 					"parent": "head",
-					"pivot": [-4.5, 3.5, -2],
+					"pivot": [0, 3.5, -2.5]
+				},
+				{
+					"name": "leftCheek",
+					"parent": "cheeks",
+					"pivot": [2.5, 3.5, -2.5],
 					"cubes": [
-						{"origin": [2.5, 2, -4], "size": [2, 3, 3], "uv": [20, 13]},
+						{"origin": [2.5, 2, -4], "size": [2, 3, 3], "uv": [20, 13]}
+					]
+				},
+				{
+					"name": "rightCheek",
+					"parent": "cheeks",
+					"pivot": [-2.5, 3.5, -2.5],
+					"cubes": [
 						{"origin": [-4.5, 2, -4], "size": [2, 3, 3], "uv": [20, 13], "mirror": true}
 					]
 				},

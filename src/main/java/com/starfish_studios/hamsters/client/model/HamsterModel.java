@@ -1,18 +1,12 @@
 package com.starfish_studios.hamsters.client.model;
 
-import com.google.common.collect.Maps;
-import com.starfish_studios.hamsters.Hamsters;
-import com.starfish_studios.hamsters.block.entity.HamsterWheelBlockEntity;
 import com.starfish_studios.hamsters.entity.Hamster;
-import net.minecraft.Util;
+import com.starfish_studios.hamsters.entity.HamsterNew;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.logging.log4j.core.appender.ScriptAppenderSelector;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
 import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
-
-import java.util.Map;
 
 import static com.starfish_studios.hamsters.Hamsters.MOD_ID;
 
@@ -24,7 +18,47 @@ public class HamsterModel extends DefaultedEntityGeoModel<Hamster> {
 
     @Override
     public ResourceLocation getModelResource(Hamster animatable) {
-        return animatable.isBaby() ? new ResourceLocation(MOD_ID, "geo/entity/pinkie.geo.json") : new ResourceLocation(MOD_ID, "geo/entity/hamster.geo.json");
+//        return animatable.isBaby() ? new ResourceLocation(MOD_ID, "geo/entity/pinkie.geo.json") : new ResourceLocation(MOD_ID, "geo/entity/hamster.geo.json");
+        return new ResourceLocation(MOD_ID, "geo/entity/hamster.geo.json");
+    }
+
+    public static ResourceLocation getVariantTexture2(HamsterNew.Variant variant) {
+        ResourceLocation resourceLocation;
+        switch (variant) {
+            case WHITE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/white.png");
+            case CREAM -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/cream.png");
+            case CHAMPAGNE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/champagne.png");
+            case SILVER_DOVE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/silver_dove.png");
+            case DOVE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/dove.png");
+            case CHOCOLATE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/chocolate.png");
+            case BLACK -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/black.png");
+            case WILD -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/wild.png");
+            default -> throw new IllegalStateException("Unexpected value: " + variant);
+        }
+        return resourceLocation;
+    }
+
+    public static ResourceLocation getVariantTexture(HamsterNew.Variant variant, HamsterNew.Marking marking) {
+        ResourceLocation resourceLocation;
+        switch (variant) {
+            case WHITE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/white.png");
+            case CREAM -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/cream.png");
+            case CHAMPAGNE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/champagne.png");
+            case SILVER_DOVE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/silver_dove.png");
+            case DOVE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/dove.png");
+            case CHOCOLATE -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/chocolate.png");
+            case BLACK -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/black.png");
+            case WILD -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/wild.png");
+            default -> throw new IllegalStateException("Unexpected value: " + variant);
+        }
+        switch (marking) {
+            case BLANK -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/blank.png");
+            case BANDED -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/banded.png");
+            case DOMINANT_SPOTS -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/dominant_spots.png");
+            case ROAN -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/roan.png");
+            case BELLY -> resourceLocation = new ResourceLocation(MOD_ID, "textures/entity/hamster/belly.png");
+        }
+        return resourceLocation;
     }
 
     @Override
@@ -32,15 +66,15 @@ public class HamsterModel extends DefaultedEntityGeoModel<Hamster> {
         if (animatable.isBaby()) {
             return new ResourceLocation(MOD_ID, "textures/entity/hamster/pinkie.png");
         }
-        return switch (animatable.getVariant()) {
-            case 0 -> new ResourceLocation(MOD_ID, "textures/entity/hamster/white.png");
-            case 1 -> new ResourceLocation(MOD_ID, "textures/entity/hamster/cream.png");
-            case 2 -> new ResourceLocation(MOD_ID, "textures/entity/hamster/champagne.png");
-            case 3 -> new ResourceLocation(MOD_ID, "textures/entity/hamster/silver_dove.png");
-            case 4 -> new ResourceLocation(MOD_ID, "textures/entity/hamster/dove.png");
-            case 5 -> new ResourceLocation(MOD_ID, "textures/entity/hamster/chocolate.png");
-            case 6 -> new ResourceLocation(MOD_ID, "textures/entity/hamster/black.png");
-            default -> throw new IllegalStateException("Unexpected value: " + animatable.getVariant());
+        return switch (HamsterNew.Variant.getTypeById(animatable.getVariant())) {
+            case WHITE -> new ResourceLocation(MOD_ID, "textures/entity/hamster/white.png");
+            case CREAM -> new ResourceLocation(MOD_ID, "textures/entity/hamster/cream.png");
+            case CHAMPAGNE -> new ResourceLocation(MOD_ID, "textures/entity/hamster/champagne.png");
+            case SILVER_DOVE -> new ResourceLocation(MOD_ID, "textures/entity/hamster/silver_dove.png");
+            case DOVE -> new ResourceLocation(MOD_ID, "textures/entity/hamster/dove.png");
+            case CHOCOLATE -> new ResourceLocation(MOD_ID, "textures/entity/hamster/chocolate.png");
+            case BLACK -> new ResourceLocation(MOD_ID, "textures/entity/hamster/black.png");
+            default -> new ResourceLocation(MOD_ID, "textures/entity/hamster/wild.png");
         };
     }
 
@@ -51,7 +85,7 @@ public class HamsterModel extends DefaultedEntityGeoModel<Hamster> {
 
     @Override
     public RenderType getRenderType(Hamster animatable, ResourceLocation texture) {
-        return RenderType.entitySolid(texture);
+        return RenderType.entityCutoutNoCull(texture);
     }
 
     @Override

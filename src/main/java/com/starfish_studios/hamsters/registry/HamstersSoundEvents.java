@@ -17,6 +17,7 @@ public interface HamstersSoundEvents {
     SoundEvent HAMSTER_BEG = register("entity.hamster.beg");
     SoundEvent HAMSTER_SLEEP = register("entity.hamster.sleep");
 
+    SoundEvent HAMSTER_ExPLODE = register("entity.hamster.explode");
 
     private static SoundType register(String name, float volume, float pitch) {
         return new SoundType(volume, pitch, register("block." + name + ".break"), register("block." + name + ".step"), register("block." + name + ".place"), register("block." + name + ".hit"), register("block." + name + ".fall"));

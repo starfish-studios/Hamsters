@@ -46,5 +46,11 @@
 		  "hamsters:entity/hamster/standing4"
 		],
 		"subtitle": "hamsters.subtitles.hamster.beg"
+	},
+	"entity.hamster.explode": {
+		"sounds": [
+		  "hamsters:yay"
+		],
+		"subtitle": "hamsters.subtitles.hamster.explode"
 	}
 }

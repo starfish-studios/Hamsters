@@ -81,7 +81,7 @@ public class HamsterNewRenderer extends GeoEntityRenderer<HamsterNew> {
     @Override
     public void render(HamsterNew animatable, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
             if (animatable.isBaby()) {
-                poseStack.scale(1F, 1F, 1F);
+                poseStack.scale(0.6F, 0.6F, 0.6F);
             } else {
                 poseStack.scale(1F, 1F, 1F);
             }
