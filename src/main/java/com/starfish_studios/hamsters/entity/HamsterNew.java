@@ -26,12 +26,15 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.BodyRotationControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.ShoulderRidingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
@@ -63,11 +66,15 @@ public class HamsterNew extends ShoulderRidingEntity implements GeoEntity {
     protected static final RawAnimation RUN = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.run");
     protected static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.sleep");
     protected static final RawAnimation STANDING = RawAnimation.begin().thenLoop("animation.sf_nba.hamster.standing");
-
+    protected static final RawAnimation SQUISH = RawAnimation.begin().thenPlay("animation.sf_nba.hamster.squish")
+            .thenPlayXTimes("animation.sf_nba.hamster.squished", 10)
+            .thenPlay("animation.sf_nba.hamster.unsquish");
     private static final EntityDataAccessor<Integer> VARIANT = SynchedEntityData.defineId(HamsterNew.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> MARKING = SynchedEntityData.defineId(HamsterNew.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_BOW_COLOR = SynchedEntityData.defineId(HamsterNew.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> CHEEK_LEVEL = SynchedEntityData.defineId(HamsterNew.class, EntityDataSerializers.INT);
+
+    private int squishedTicks;
 
     private static final Ingredient FOOD_ITEMS = Ingredient.of(HamstersTags.HAMSTER_FOOD);
 
@@ -95,9 +102,25 @@ public class HamsterNew extends ShoulderRidingEntity implements GeoEntity {
         this.goalSelector.addGoal(3, new BreedGoal(this, 1.0));
         this.goalSelector.addGoal(5, new TemptGoal(this, 1.0, FOOD_ITEMS, false));
         this.goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0));
-        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
-        this.goalSelector.addGoal(10, new GetOnOwnersShoulderGoal(this));
+        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F) {
+            @Override
+            public void tick() {
+                if (squishedTicks > 0) {
+                    return;
+                }
+                super.tick();
+            }
+        });
+        this.goalSelector.addGoal(9, new RandomLookAroundGoal(this) {
+            @Override
+            public void tick() {
+                if (squishedTicks > 0) {
+                    return;
+                }
+                super.tick();
+            }
+        });
+//        this.goalSelector.addGoal(10, new GetOnOwnersShoulderGoal(this));
 
     }
 
@@ -111,9 +134,28 @@ public class HamsterNew extends ShoulderRidingEntity implements GeoEntity {
         return itemStack.is(HamstersTags.HAMSTER_FOOD);
     }
 
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+    }
+
+    // TODO : Make this only happen when it's fall damage
+    public boolean hurt(DamageSource damageSource, float f) {
+        boolean bl = super.hurt(damageSource, f);
+        this.setSquishedTicks(120);
+        this.playSound(SoundEvents.SLIME_HURT, 1.0F, 1.0F);
+        return bl;
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();
+        if (this.squishedTicks > 0) {
+            this.setDeltaMovement(0, 0, 0);
+            --this.squishedTicks;
+            if (this.squishedTicks == 10) {
+                this.playSound(SoundEvents.CHICKEN_EGG, 1.0F, 1.0F);
+            }
+        }
 
         if (this.level().isClientSide) {
             if (this.getCheekLevel() == 2) {
@@ -177,44 +219,45 @@ public class HamsterNew extends ShoulderRidingEntity implements GeoEntity {
         RandomSource randomSource = this.getRandom();
 
         if (this.level().isClientSide) {
-            boolean bl = this.isOwnedBy(player) || this.isTame() || itemStack.is(Items.BONE) && !this.isTame();
+            boolean bl = this.isOwnedBy(player) || this.isTame() || itemStack.is(HamstersTags.HAMSTER_FOOD) && !this.isTame();
             return bl ? InteractionResult.CONSUME : InteractionResult.PASS;
         } else {
-            if (this.isFood(itemStack)) {
-                if (this.getCheekLevel() < 3) {
-                    if (player.getCooldowns().isOnCooldown(itemStack.getItem())) {
-                        return InteractionResult.FAIL;
-                    }
-                    this.setCheekLevel(this.getCheekLevel() + 1);
-                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PARROT_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
-                    player.getCooldowns().addCooldown(itemStack.getItem(), 20);
-                } else if (this.getCheekLevel() >= 3) {
-                    if (player.getCooldowns().isOnCooldown(itemStack.getItem())) {
-                        return InteractionResult.FAIL;
-                    }
-                    this.remove(RemovalReason.KILLED);
-                    this.playSound(HamstersSoundEvents.HAMSTER_ExPLODE, 1.0F, 1.0F);
-
-                    DyeColor dyeColor = Util.getRandom(DyeColor.values(), randomSource);
-                    int i = randomSource.nextInt(3);
-                    ItemStack fireworkStack = this.getFirework(dyeColor, i);
-                    FireworkRocketEntity fireworkRocketEntity = new FireworkRocketEntity(this.level(), this, this.getX(), this.getEyeY(), this.getZ(), fireworkStack);
-                    fireworkRocketEntity.setSilent(true);
-                    fireworkRocketEntity.setInvisible(true);
-                    this.level().addFreshEntity(fireworkRocketEntity);
-
-                    fireworkRocketEntity.setDeltaMovement(0, 0, 0);
-
-
-
-
-                    if (this.level() instanceof ServerLevel serverLevel) {
-//                        serverLevel.sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(), this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
-                    }
-                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.NEUTRAL, 1.0F, 1.0F);
-                }
-                return InteractionResult.SUCCESS;
-            }
+            // HAMSTER OVER-FEEDING EXPLOSIONS
+//            if (this.isFood(itemStack)) {
+//                if (this.getCheekLevel() < 3) {
+//                    if (player.getCooldowns().isOnCooldown(itemStack.getItem())) {
+//                        return InteractionResult.FAIL;
+//                    }
+//                    this.setCheekLevel(this.getCheekLevel() + 1);
+//                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PARROT_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
+//                    player.getCooldowns().addCooldown(itemStack.getItem(), 20);
+//                } else if (this.getCheekLevel() >= 3) {
+//                    if (player.getCooldowns().isOnCooldown(itemStack.getItem())) {
+//                        return InteractionResult.FAIL;
+//                    }
+//                    this.remove(RemovalReason.KILLED);
+//                    this.playSound(HamstersSoundEvents.HAMSTER_ExPLODE, 1.0F, 1.0F);
+//
+//                    DyeColor dyeColor = Util.getRandom(DyeColor.values(), randomSource);
+//                    int i = randomSource.nextInt(3);
+//                    ItemStack fireworkStack = this.getFirework(dyeColor, i);
+//                    FireworkRocketEntity fireworkRocketEntity = new FireworkRocketEntity(this.level(), this, this.getX(), this.getEyeY(), this.getZ(), fireworkStack);
+//                    fireworkRocketEntity.setSilent(true);
+//                    fireworkRocketEntity.setInvisible(true);
+//                    this.level().addFreshEntity(fireworkRocketEntity);
+//
+//                    fireworkRocketEntity.setDeltaMovement(0, 0, 0);
+//
+//
+//
+//
+//                    if (this.level() instanceof ServerLevel serverLevel) {
+////                        serverLevel.sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(), this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+//                    }
+//                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.NEUTRAL, 1.0F, 1.0F);
+//                }
+//                return InteractionResult.SUCCESS;
+//            }
 
             label90: {
                 if (this.isTame()) {
@@ -245,7 +288,7 @@ public class HamsterNew extends ShoulderRidingEntity implements GeoEntity {
 
                         return InteractionResult.SUCCESS;
                     }
-                } else if (itemStack.is(Items.BONE)) {
+                } else if (itemStack.is(HamstersTags.HAMSTER_FOOD)) {
                     if (!player.getAbilities().instabuild) {
                         itemStack.shrink(1);
                     }
@@ -363,6 +406,7 @@ public class HamsterNew extends ShoulderRidingEntity implements GeoEntity {
         this.setVariant(Variant.BY_ID[compoundTag.getInt("Variant")]);
         this.setMarking(compoundTag.getInt("Marking"));
         this.setCheekLevel(compoundTag.getInt("CheekLevel"));
+        this.setSquishedTicks(compoundTag.getInt("SquishedTicks"));
     }
 
     @Override
@@ -371,8 +415,16 @@ public class HamsterNew extends ShoulderRidingEntity implements GeoEntity {
         compoundTag.putInt("Variant", this.getVariant());
         compoundTag.putInt("Marking", this.getMarking());
         compoundTag.putInt("CheekLevel", this.getCheekLevel());
+        compoundTag.putInt("SquishedTicks", this.getSquishedTicks());
     }
 
+    public int getSquishedTicks() {
+        return squishedTicks;
+    }
+
+    public void setSquishedTicks(int squishedTicks) {
+        this.squishedTicks = squishedTicks;
+    }
 
     public DyeColor getCollarColor() {
         return DyeColor.byId(this.entityData.get(DATA_BOW_COLOR));
@@ -491,7 +543,9 @@ public class HamsterNew extends ShoulderRidingEntity implements GeoEntity {
     }
 
     protected <E extends HamsterNew> PlayState animController(final AnimationState<E> event) {
-        if (this.isSleeping()) {
+        if (this.squishedTicks > 0) {
+            event.setAnimation(SQUISH);
+        } else if (this.isSleeping()) {
             event.setAnimation(SLEEP);
         } else if (this.isInSittingPose()) {
             event.setAnimation(STANDING);
