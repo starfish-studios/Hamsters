@@ -43,6 +43,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import com.starfish_studios.hamsters.registry.HamstersBlocks;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -785,6 +786,8 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         private final TargetingConditions alertableTargeting = TargetingConditions.forNonCombat().range(6.0).ignoreLineOfSight().selector(new HamsterAlertableEntitiesSelector());
         private final int WAIT_TIME_BEFORE_SLEEP = random.nextInt(100) + 100;
         private int countdown;
+        @Nullable
+        private BlockPos bedPos;
 
         public SleepGoal() {
             super();
@@ -794,6 +797,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
 
         public boolean canUse() {
             if (Hamster.this.xxa == 0.0F && Hamster.this.yya == 0.0F && Hamster.this.zza == 0.0F) {
+                this.bedPos = findNearbyBed().orElse(null);
                 return this.canSleep() || Hamster.this.isSleeping();
             } else {
                 return false;
@@ -816,15 +820,63 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         public void stop() {
             this.countdown = Hamster.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
             clearStates();
+            this.bedPos = null;
         }
 
         public void start() {
             Hamster.this.setInSittingPose(false);
             Hamster.this.setIsInterested(false);
             Hamster.this.setJumping(false);
-            Hamster.this.setSleeping(true);
             Hamster.this.getNavigation().stop();
-            Hamster.this.getMoveControl().setWantedPosition(Hamster.this.getX(), Hamster.this.getY(), Hamster.this.getZ(), 0.0);
+            if (this.bedPos != null) {
+                Hamster.this.getNavigation().moveTo(this.bedPos.getX() + 0.5, this.bedPos.getY(), this.bedPos.getZ() + 0.5, 1.0);
+            } else {
+                Hamster.this.setSleeping(true);
+                Hamster.this.getMoveControl().setWantedPosition(Hamster.this.getX(), Hamster.this.getY(), Hamster.this.getZ(), 0.0);
+            }
+        }
+
+        private Optional<BlockPos> findNearbyBed() {
+            return findNearestBlock(state -> state.is(HamstersBlocks.HAMSTER_BED.get()));
+        }
+
+        private Optional<BlockPos> findNearestBlock(Predicate<BlockState> predicate) {
+            BlockPos blockPos = Hamster.this.blockPosition();
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+            int i = 0;
+            while ((double)i <= 5.0) {
+                int j = 0;
+                while ((double)j < 5.0) {
+                    int k = 0;
+                    while (k <= j) {
+                        int l = k < j && k > -j ? j : 0;
+                        while (l <= j) {
+                            mutable.setWithOffset(blockPos, k, i - 1, l);
+                            if (blockPos.closerThan(mutable, 5.0) && predicate.test(Hamster.this.level().getBlockState(mutable))) {
+                                return Optional.of(mutable);
+                            }
+                            l = l > 0 ? -l : 1 - l;
+                        }
+                        k = k > 0 ? -k : 1 - k;
+                    }
+                    ++j;
+                }
+                i = i > 0 ? -i : 1 - i;
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public void tick() {
+            if (this.bedPos != null && !Hamster.this.isSleeping()) {
+                Vec3 vec = Vec3.atCenterOf(this.bedPos);
+                if (vec.distanceTo(Hamster.this.position()) < 1.0D) {
+                    Hamster.this.setPos(vec.x, vec.y, vec.z);
+                    Hamster.this.setSleeping(true);
+                } else {
+                    Hamster.this.getMoveControl().setWantedPosition(vec.x, vec.y, vec.z, 0.7F);
+                }
+            }
         }
 
 

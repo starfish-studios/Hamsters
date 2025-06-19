@@ -24,6 +24,7 @@ public class HamstersCreativeModeTab {
 
         // output.accept(TUNNEL);
         output.accept(HamstersItems.HAMSTER_WHEEL.get());
+        output.accept(HamstersItems.HAMSTER_BED.get());
 
 
         output.accept(HAMSTER_SPAWN_EGG.get());

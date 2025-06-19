@@ -19,6 +19,7 @@
   "item.hamsters.hamster_spawn_egg": "Hamster Spawn Egg",
   "block.hamsters.tunnel": "Tunnel",
   "block.hamsters.hamster_wheel": "Hamster Wheel",
+  "block.hamsters.hamster_bed": "Hamster Bed",
 
   "hamsters.subtitles.hamster.ambient": "Hamster squeaks",
   "hamsters.subtitles.hamster.hurt": "Hamster hurts",
