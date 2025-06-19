@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "hamsters:block/hamster_bed" }
+  }
+}

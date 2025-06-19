@@ -3,6 +3,8 @@ package com.starfish_studios.hamsters.registry;
 import com.starfish_studios.hamsters.Hamsters;
 import com.starfish_studios.hamsters.item.HamsterItem;
 import com.starfish_studios.hamsters.item.HamsterWheelItem;
+import com.starfish_studios.hamsters.registry.HamstersBlocks;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.fml.common.Mod;
@@ -20,6 +22,8 @@ public class HamstersItems {
     public static final RegistryObject<Item> HAMSTER = ITEMS.register("hamster", () -> new HamsterItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> HAMSTER_WHEEL = ITEMS.register("hamster_wheel", () -> new HamsterWheelItem(HamstersBlocks.HAMSTER_WHEEL.get(), new Item.Properties()));
+
+    public static final RegistryObject<Item> HAMSTER_BED = ITEMS.register("hamster_bed", () -> new BlockItem(HamstersBlocks.HAMSTER_BED.get(), new Item.Properties()));
 
     //public static Supplier<Item> registerCaughtMobItem(String name, EntityType entitySupplier, Supplier<? extends Fluid> fluidSupplier, SoundEvent soundSupplier, int variantAmount) {
     //    return registerItem(name, () ->  new HamsterItem(entitySupplier, fluidSupplier.get(), soundSupplier, variantAmount, new Item.Properties().stacksTo(1)));
