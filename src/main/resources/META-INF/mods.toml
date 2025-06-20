@@ -19,3 +19,10 @@ description='''${mod_description}'''
    versionRange="${minecraft_version_range}"
    ordering="NONE"
    side="BOTH"
+
+[[dependencies.${mod_id}]]
+   modId="geckolib"
+   mandatory=true
+   versionRange="[4.4.2,)"
+   ordering="AFTER"
+   side="BOTH"

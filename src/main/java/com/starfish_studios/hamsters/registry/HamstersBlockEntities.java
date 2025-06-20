@@ -15,7 +15,7 @@ public class HamstersBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MOD_ID);
 
     public static final RegistryObject<BlockEntityType<HamsterWheelBlockEntity>> HAMSTER_WHEEL = BLOCK_ENTITY_TYPES.register(
-            "hamsters",
+            "hamster_wheel",
             () -> BlockEntityType.Builder.of(HamsterWheelBlockEntity::new, HamstersBlocks.HAMSTER_WHEEL.get()).build(null)
     );
 
