@@ -1,0 +1,27 @@
+{
+  "itemGroup.hamsters.tab": "Hamsters",
+  "item.hamsters.hamsters": "Hamsters",
+
+  "entity.hamsters.hamster": "Хом'як",
+  "item.hamsters.hamster": "Хом'як",
+
+  "tooltip.hamsters.white": "Білий",
+  "tooltip.hamsters.peaches_and_cream": "Персиково-вершковий",
+  "tooltip.hamsters.orange": "Помаранчевий",
+  "tooltip.hamsters.grey_white": "Сіро-білий",
+  "tooltip.hamsters.brown": "Коричневий",
+  "tooltip.hamsters.black_white": "Чорно-білий",
+  "tooltip.hamsters.black": "Чорний",
+
+  "tooltip.hamsters.tamed": "Приручений",
+  "tooltip.hamsters.baby": "Дитинча",
+
+  "item.hamsters.hamster_spawn_egg": "Яйце виклику хом'яка",
+  "block.hamsters.tunnel": "Тунель",
+  "block.hamsters.hamster_wheel": "Хом'яче колесо",
+
+  "hamsters.subtitles.hamster.ambient": "Хом'як пищить",
+  "hamsters.subtitles.hamster.hurt": "Хом'яка поранено",
+  "hamsters.subtitles.hamster.death": "Хом'як гине",
+  "hamsters.subtitles.hamster.beg": "Хом'як просить"
+}

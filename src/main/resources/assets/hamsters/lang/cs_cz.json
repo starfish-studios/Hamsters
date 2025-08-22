@@ -1,0 +1,27 @@
+{
+  "itemGroup.hamsters.tab": "Hamsters",
+  "item.hamsters.hamsters": "Hamsters",
+
+  "entity.hamsters.hamster": "Křeček",
+  "item.hamsters.hamster": "Křeček",
+
+  "tooltip.hamsters.white": "Bílý",
+  "tooltip.hamsters.peaches_and_cream": "Broskvové smetanový",
+  "tooltip.hamsters.orange": "Oranžový",
+  "tooltip.hamsters.grey_white": "Šedobílý",
+  "tooltip.hamsters.brown": "Hnědý",
+  "tooltip.hamsters.black_white": "Černobílý",
+  "tooltip.hamsters.black": "Černý",
+
+  "tooltip.hamsters.tamed": "Ochočený",
+  "tooltip.hamsters.baby": "Dítě",
+
+  "item.hamsters.hamster_spawn_egg": "Vajíčko s křečkem",
+  "block.hamsters.tunnel": "Tunel",
+  "block.hamsters.hamster_wheel": "Křeččí kolo",
+
+  "hamsters.subtitles.hamster.ambient": "křeččí kvičení",
+  "hamsters.subtitles.hamster.hurt": "křeček byl zraněn",
+  "hamsters.subtitles.hamster.death": "křeček zemřel",
+  "hamsters.subtitles.hamster.beg": "křeček prosí"
+}
