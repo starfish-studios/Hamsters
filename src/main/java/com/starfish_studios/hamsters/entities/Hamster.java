@@ -809,20 +809,6 @@ public class Hamster extends TamableAnimal implements GeoEntity, SleepingAnimal 
         this.playSound(HamstersSoundEvents.HAMSTER_PICK_UP);
         this.gameEvent(GameEvent.ENTITY_INTERACT);
         this.discard();
-        player.getInventory().add(itemStack);
-
-
-        // ItemStack itemStack = new ItemStack(YourMod.BLA_BLA);
-        if (!player.getInventory().add(itemStack)) {
-            ItemEntity itemEntity = new ItemEntity(level(), this.getX(), this.getY() + 0.5, this.getZ(), itemStack);
-            itemEntity.setPickUpDelay(0);
-            itemEntity.setDeltaMovement(itemEntity.getDeltaMovement().multiply(0, 1, 0));
-            this.level().addFreshEntity(itemEntity);
-        }
-        this.gameEvent(GameEvent.ENTITY_INTERACT);
-        this.discard();
-        player.getInventory().add(itemStack);
-
     }
 
     private static void saveDefaultDataToItemTag(Hamster mob, ItemStack itemStack) {

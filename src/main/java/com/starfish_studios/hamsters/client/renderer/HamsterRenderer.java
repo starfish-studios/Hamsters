@@ -20,7 +20,7 @@ public class HamsterRenderer extends GeoEntityRenderer<Hamster> {
 
         super(context, new HamsterModel());
         this.shadowRadius = 0.3F;
-        this.context= context;
+        this.context = context;
         this.addRenderLayer(new HamsterMarkingLayer(this));
         this.addRenderLayer(new HamsterCollarLayer(this));
     }

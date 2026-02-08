@@ -534,31 +534,31 @@ public class HamsterOld extends TamableAnimal implements GeoEntity {
     // region PICK UP ITEMS
 
     @Override
-    public boolean canTakeItem(ItemStack pItemstack) {
-        EquipmentSlot slot = getEquipmentSlotForItem(pItemstack);
+    public boolean canTakeItem(ItemStack itemStack) {
+        EquipmentSlot slot = getEquipmentSlotForItem(itemStack);
         if (!this.getItemBySlot(slot).isEmpty()) {
             return false;
         } else {
-            return slot == EquipmentSlot.MAINHAND && super.canTakeItem(pItemstack);
+            return slot == EquipmentSlot.MAINHAND && super.canTakeItem(itemStack);
         }
     }
 
     @Override
-    protected void pickUpItem(ItemEntity pItemEntity) {
-        ItemStack stack = pItemEntity.getItem();
+    protected void pickUpItem(ItemEntity itemEntity) {
+        ItemStack stack = itemEntity.getItem();
         if (!this.isSleeping()) {
             if (this.getMainHandItem().isEmpty() && FOOD_ITEMS.test(stack)) {
-                this.onItemPickup(pItemEntity);
+                this.onItemPickup(itemEntity);
                 this.setItemSlot(EquipmentSlot.MAINHAND, stack);
                 this.handDropChances[EquipmentSlot.MAINHAND.getIndex()] = 2.0F;
-                this.take(pItemEntity, stack.getCount());
-                pItemEntity.discard();
+                this.take(itemEntity, stack.getCount());
+                itemEntity.discard();
             }
         }
     }
 
     @Override
-    public boolean hurt(DamageSource pSource, float pAmount) {
+    public boolean hurt(DamageSource damageSource, float damageAmount) {
         if (!this.getMainHandItem().isEmpty() && !this.level().isClientSide) {
             ItemEntity itemEntity = new ItemEntity(this.level(), this.getX() + this.getLookAngle().x, this.getY() + 1.0D, this.getZ() + this.getLookAngle().z, this.getMainHandItem());
             itemEntity.setPickUpDelay(40);
@@ -567,7 +567,7 @@ public class HamsterOld extends TamableAnimal implements GeoEntity {
             this.level().addFreshEntity(itemEntity);
             this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
         }
-        return super.hurt(pSource, pAmount);
+        return super.hurt(damageSource, damageAmount);
     }
 
     // endregion
@@ -575,13 +575,13 @@ public class HamsterOld extends TamableAnimal implements GeoEntity {
     // region SPAWNING
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
-        this.populateDefaultEquipmentSlots(random, pDifficulty);
-        if (pSpawnData == null) {
-            RandomSource randomSource = pLevel.getRandom();
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelAccessor, DifficultyInstance difficultyInstance, MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag dataTag) {
+        this.populateDefaultEquipmentSlots(random, difficultyInstance);
+        if (spawnGroupData == null) {
+            RandomSource randomSource = levelAccessor.getRandom();
             this.setVariant(Variant.values()[randomSource.nextInt(Variant.values().length)]);
         }
-        return pSpawnData;
+        return spawnGroupData;
     }
 
     @Nullable
@@ -591,7 +591,7 @@ public class HamsterOld extends TamableAnimal implements GeoEntity {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance pDifficulty) {
+    protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficultyInstance) {
         if (random.nextFloat() < 0.2F) {
             float chance = random.nextFloat();
             ItemStack stack;
