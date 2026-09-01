@@ -705,13 +705,20 @@ public class Hamster extends TamableAnimal implements GeoEntity {
         public void tick() {
             Optional<BlockPos> optional = this.findNearbyResource();
 
-            if (HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get())) {
+            if (optional.isEmpty()) {
+                stop();
+                return;
+            }
+
+            BlockPos wheelBlockPos = optional.get();
+
+            if (HamsterWheelBlock.isOccupied(Hamster.this.level(), wheelBlockPos)) {
                 stop();
             }
 
-            if (!HamsterWheelBlock.isOccupied(Hamster.this.level(), optional.get()) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
+            if (!HamsterWheelBlock.isOccupied(Hamster.this.level(), wheelBlockPos) && Hamster.this.getWaitTimeBeforeRunTicks() == 0) {
 
-                Vec3 vec3 = Vec3.atBottomCenterOf(optional.get());
+                Vec3 vec3 = Vec3.atBottomCenterOf(wheelBlockPos);
                 if (vec3.distanceTo(Hamster.this.position()) > 1.4) {
                     wheelPos = vec3;
                     this.setWantedPos();
@@ -722,7 +729,7 @@ public class Hamster extends TamableAnimal implements GeoEntity {
                 }
                 if (Hamster.this.position().distanceTo(this.wheelPos) <= 1.4) {
                     Hamster.this.setWaitTimeWhenRunningTicks(Hamster.this.random.nextInt(300) + 100);
-                    HamsterWheelBlock.sitDown(Hamster.this.level(), optional.get(), Hamster.this);
+                    HamsterWheelBlock.sitDown(Hamster.this.level(), wheelBlockPos, Hamster.this);
                     this.stop();
                 }
             }
